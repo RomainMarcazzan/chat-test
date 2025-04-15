@@ -3,22 +3,22 @@ import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import {
   Button,
+  Platform,
+  TextInput,
   TouchableOpacity,
   View,
-  TextInput,
-  Platform,
 } from "react-native";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
-import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { useColorScheme } from "@/hooks/useColorScheme.web";
-import { Colors } from "@/constants/Colors";
+import {
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetTextInput,
+} from "@gorhom/bottom-sheet";
 
 type SetupStep = "mode" | "gender" | "tone" | "name";
 
 export default function InitChatScreen() {
-  const colorScheme = useColorScheme() ?? "light";
-
   const { assistantSettings, updateAssistantSettings } = useChatContext();
   const [currentStep, setCurrentStep] = useState<SetupStep>("mode");
   const [customName, setCustomName] = useState("");
@@ -88,6 +88,8 @@ export default function InitChatScreen() {
   };
 
   const handlePresentModalPress = useCallback(() => {
+    console.log("Presenting modal");
+
     bottomSheetModalRef.current?.present();
     setCurrentStep("mode");
   }, []);
@@ -98,27 +100,41 @@ export default function InitChatScreen() {
         <View
           style={{
             padding: 16,
-            width: "100%",
             borderWidth: 2,
             borderColor: "red",
           }}
         >
-          <ThemedText type="title">Choisissez un nom</ThemedText>
-          <TextInput
-            style={{
-              width: "100%",
-              padding: 12,
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 8,
-              marginTop: 16,
-              color: "#000",
-            }}
-            value={customName}
-            onChangeText={setCustomName}
-            placeholder="Entrez un nom"
-            placeholderTextColor="#999"
-          />
+          {Platform.OS === "ios" ? (
+            <BottomSheetTextInput
+              style={{
+                padding: 12,
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 8,
+                marginTop: 16,
+                color: "#000",
+              }}
+              value={customName}
+              onChangeText={setCustomName}
+              placeholder="Entrez un nom"
+              placeholderTextColor="#999"
+            />
+          ) : (
+            <TextInput
+              style={{
+                padding: 12,
+                borderWidth: 1,
+                borderColor: "#ccc",
+                borderRadius: 8,
+                marginTop: 16,
+                color: "#000",
+              }}
+              value={customName}
+              onChangeText={setCustomName}
+              placeholder="Entrez un nom"
+              placeholderTextColor="#999"
+            />
+          )}
           <View
             style={{
               flexDirection: "row",
@@ -172,7 +188,7 @@ export default function InitChatScreen() {
   }, [currentStep, isCustomName, customName]);
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <ThemedView style={{ flex: 1, padding: 20 }}>
         <View style={{ flex: 1, gap: 16 }}>
           <ThemedText type="title">Paramètres de l'assistant</ThemedText>
@@ -248,19 +264,8 @@ export default function InitChatScreen() {
         </View>
       </ThemedView>
       <BottomSheetModal ref={bottomSheetModalRef} handleComponent={null}>
-        <BottomSheetScrollView
-          style={{
-            flex: 1,
-            backgroundColor: Colors[colorScheme].background,
-          }}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{
-            paddingBottom: Platform.OS === "android" ? 20 : 0,
-          }}
-        >
-          {renderStepContent}
-        </BottomSheetScrollView>
+        <BottomSheetScrollView>{renderStepContent}</BottomSheetScrollView>
       </BottomSheetModal>
-    </>
+    </View>
   );
 }
