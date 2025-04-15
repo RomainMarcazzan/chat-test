@@ -37,6 +37,8 @@ type ChatContextType = {
   handleValidateCustomName: () => void;
   handleCustomNameSubmit: () => void;
   resetAssistantSetup: () => void;
+  isEditingSingleParam: boolean;
+  setIsEditingSingleParam: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const defaultAssistantSettings: AssistantSettings = {
@@ -59,6 +61,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [isCustomName, setIsCustomName] = useState(false);
   const [customName, setCustomName] = useState("");
   const [selectedName, setSelectedName] = useState("");
+  const [isEditingSingleParam, setIsEditingSingleParam] = useState(false);
 
   const addMessage = (content: string, role: Message["role"]) => {
     const newMessage: Message = {
@@ -77,7 +80,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const updateAssistantSettings = (settings: Partial<AssistantSettings>) => {
     setAssistantSettings((prev) => {
       const updated = { ...prev, ...settings };
-      console.log("Assistant settings updated:", updated);
+      console.log("Assistant settings updated:", {
+        updated,
+        isEditingSingleParam,
+      });
       return updated;
     });
   };
@@ -103,12 +109,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       if (selectedOption === "default") {
         setSelectedName("Sam");
         updateAssistantSettings({ name: "Sam" });
+        if (isEditingSingleParam) {
+          setIsEditingSingleParam(false);
+          setSelectedOption(null);
+          return;
+        }
       } else {
         setIsCustomName(true);
+        // Do NOT close the bottom sheet yet, wait for custom name validation
         return;
       }
     } else {
       updateAssistantSettings({ [currentStep]: selectedOption } as any);
+      if (isEditingSingleParam) {
+        setIsEditingSingleParam(false);
+        setSelectedOption(null);
+        return;
+      }
     }
     switch (currentStep) {
       case "mode":
@@ -132,6 +149,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       const name = customName.trim();
       setSelectedName(name);
       updateAssistantSettings({ name });
+      if (isEditingSingleParam) {
+        setIsEditingSingleParam(false);
+        setIsCustomName(false);
+        return;
+      }
       setCurrentStep("final");
       setIsCustomName(false);
     }
@@ -177,6 +199,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         handleValidateCustomName,
         handleCustomNameSubmit,
         resetAssistantSetup,
+        isEditingSingleParam,
+        setIsEditingSingleParam,
       }}
     >
       {children}

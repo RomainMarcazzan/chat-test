@@ -3,7 +3,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import {
   BottomSheetModal,
@@ -29,6 +29,9 @@ export default function InitChatScreen() {
     handleValidateChoice,
     handleValidateCustomName,
     resetAssistantSetup,
+    setCurrentStep,
+    isEditingSingleParam,
+    setIsEditingSingleParam,
   } = useChatContext();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -61,6 +64,20 @@ export default function InitChatScreen() {
     ) : (
       <TextInput {...props} />
     );
+
+  useEffect(() => {
+    if (currentStep === "mode") {
+      setSelectedOption(assistantSettings.mode);
+    } else if (currentStep === "gender") {
+      setSelectedOption(assistantSettings.gender);
+    } else if (currentStep === "tone") {
+      setSelectedOption(assistantSettings.tone);
+    } else if (currentStep === "name") {
+      setSelectedOption(
+        assistantSettings.name === "Sam" ? "default" : "custom"
+      );
+    }
+  }, [currentStep, assistantSettings, setSelectedOption]);
 
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
@@ -99,7 +116,12 @@ export default function InitChatScreen() {
           <View style={{ marginTop: 16 }}>
             <CustomButton
               title="Valider mon choix"
-              onPress={handleValidateCustomName}
+              onPress={() => {
+                handleValidateCustomName();
+                if (isEditingSingleParam) {
+                  bottomSheetModalRef.current?.dismiss();
+                }
+              }}
               disabled={!customName.trim()}
             />
           </View>
@@ -158,7 +180,14 @@ export default function InitChatScreen() {
         <View style={{ marginTop: 16 }}>
           <CustomButton
             title="Valider mon choix"
-            onPress={handleValidateChoice}
+            onPress={() => {
+              const wasCustomName =
+                currentStep === "name" && selectedOption === "custom";
+              handleValidateChoice();
+              if (isEditingSingleParam && !wasCustomName) {
+                bottomSheetModalRef.current?.dismiss();
+              }
+            }}
             disabled={!selectedOption}
           />
         </View>
@@ -171,11 +200,19 @@ export default function InitChatScreen() {
     selectedOption,
     selectedName,
     assistantSettings,
+    isEditingSingleParam,
   ]);
 
   const handlePresentModalPress = () => {
     resetAssistantSetup();
     setSelectedOption("personalized");
+    setIsEditingSingleParam(false);
+    bottomSheetModalRef.current?.present();
+  };
+
+  const handleChangeStep = (step: SetupStep) => {
+    setCurrentStep(step);
+    setIsEditingSingleParam(true);
     bottomSheetModalRef.current?.present();
   };
 
@@ -184,6 +221,7 @@ export default function InitChatScreen() {
       <ThemedView style={{ flex: 1, padding: 16 }}>
         <View style={{ flex: 1, gap: 16 }}>
           <ThemedText type="title">Paramètres de l'assistant</ThemedText>
+          {/* Mode */}
           <View
             style={{
               flexDirection: "row",
@@ -201,6 +239,7 @@ export default function InitChatScreen() {
                 : "Personnalisé"}
             </ThemedText>
           </View>
+          {/* Genre */}
           <View
             style={{
               flexDirection: "row",
@@ -214,6 +253,12 @@ export default function InitChatScreen() {
             <ThemedText type="defaultSemiBold">Genre:</ThemedText>
             <ThemedText>{assistantSettings.gender}</ThemedText>
           </View>
+          <TouchableOpacity onPress={() => handleChangeStep("gender")}>
+            <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
+              Changer ma réponse
+            </ThemedText>
+          </TouchableOpacity>
+          {/* Ton */}
           <View
             style={{
               flexDirection: "row",
@@ -227,6 +272,12 @@ export default function InitChatScreen() {
             <ThemedText type="defaultSemiBold">Ton:</ThemedText>
             <ThemedText>{assistantSettings.tone}</ThemedText>
           </View>
+          <TouchableOpacity onPress={() => handleChangeStep("tone")}>
+            <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
+              Changer ma réponse
+            </ThemedText>
+          </TouchableOpacity>
+          {/* Nom */}
           <View
             style={{
               flexDirection: "row",
@@ -240,6 +291,11 @@ export default function InitChatScreen() {
             <ThemedText type="defaultSemiBold">Nom:</ThemedText>
             <ThemedText>{assistantSettings.name}</ThemedText>
           </View>
+          <TouchableOpacity onPress={() => handleChangeStep("name")}>
+            <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
+              Changer ma réponse
+            </ThemedText>
+          </TouchableOpacity>
         </View>
         <View style={{ marginBottom: 20 }}>
           <CustomButton
