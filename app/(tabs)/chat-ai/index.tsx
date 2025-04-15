@@ -94,6 +94,13 @@ export default function InitChatScreen() {
     setCurrentStep("mode");
   }, []);
 
+  const AdaptiveTextInput = (props: any) =>
+    Platform.OS === "ios" ? (
+      <BottomSheetTextInput {...props} />
+    ) : (
+      <TextInput {...props} />
+    );
+
   const renderStepContent = useMemo(() => {
     if (currentStep === "name" && isCustomName) {
       return (
@@ -105,37 +112,20 @@ export default function InitChatScreen() {
           }}
         >
           <ThemedText type="title">Choisissez un nom</ThemedText>
-          {Platform.OS === "ios" ? (
-            <BottomSheetTextInput
-              style={{
-                padding: 12,
-                borderWidth: 1,
-                borderColor: "#ccc",
-                borderRadius: 8,
-                marginTop: 16,
-                color: "#000",
-              }}
-              value={customName}
-              onChangeText={setCustomName}
-              placeholder="Entrez un nom"
-              placeholderTextColor="#999"
-            />
-          ) : (
-            <TextInput
-              style={{
-                padding: 12,
-                borderWidth: 1,
-                borderColor: "#ccc",
-                borderRadius: 8,
-                marginTop: 16,
-                color: "#000",
-              }}
-              value={customName}
-              onChangeText={setCustomName}
-              placeholder="Entrez un nom"
-              placeholderTextColor="#999"
-            />
-          )}
+          <AdaptiveTextInput
+            style={{
+              padding: 12,
+              borderWidth: 1,
+              borderColor: "#ccc",
+              borderRadius: 8,
+              marginTop: 16,
+              color: "#000",
+            }}
+            value={customName}
+            onChangeText={setCustomName}
+            placeholder="Entrez un nom"
+            placeholderTextColor="#999"
+          />
           <View
             style={{
               flexDirection: "row",
@@ -189,8 +179,8 @@ export default function InitChatScreen() {
   }, [currentStep, isCustomName, customName]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <ThemedView style={{ flex: 1, padding: 20 }}>
+    <>
+      <ThemedView style={{ flex: 1, padding: 16 }}>
         <View style={{ flex: 1, gap: 16 }}>
           <ThemedText type="title">Paramètres de l'assistant</ThemedText>
           <View
@@ -264,9 +254,14 @@ export default function InitChatScreen() {
           />
         </View>
       </ThemedView>
-      <BottomSheetModal ref={bottomSheetModalRef} handleComponent={null}>
+      <BottomSheetModal
+        ref={bottomSheetModalRef}
+        handleComponent={null}
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
+      >
         <BottomSheetScrollView>{renderStepContent}</BottomSheetScrollView>
       </BottomSheetModal>
-    </View>
+    </>
   );
 }
