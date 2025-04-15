@@ -14,12 +14,29 @@ type Message = {
   timestamp: Date;
 };
 
+type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
+
 type ChatContextType = {
   messages: Message[];
   assistantSettings: AssistantSettings;
   addMessage: (content: string, role: Message["role"]) => void;
   clearMessages: () => void;
   updateAssistantSettings: (settings: Partial<AssistantSettings>) => void;
+  currentStep: SetupStep;
+  setCurrentStep: React.Dispatch<React.SetStateAction<SetupStep>>;
+  selectedOption: string | null;
+  setSelectedOption: React.Dispatch<React.SetStateAction<string | null>>;
+  isCustomName: boolean;
+  setIsCustomName: React.Dispatch<React.SetStateAction<boolean>>;
+  customName: string;
+  setCustomName: React.Dispatch<React.SetStateAction<string>>;
+  selectedName: string;
+  setSelectedName: React.Dispatch<React.SetStateAction<string>>;
+  handleOptionSelect: (value: string) => void;
+  handleValidateChoice: () => void;
+  handleValidateCustomName: () => void;
+  handleCustomNameSubmit: () => void;
+  resetAssistantSetup: () => void;
 };
 
 const defaultAssistantSettings: AssistantSettings = {
@@ -37,6 +54,12 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     defaultAssistantSettings
   );
 
+  const [currentStep, setCurrentStep] = useState<SetupStep>("mode");
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isCustomName, setIsCustomName] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [selectedName, setSelectedName] = useState("");
+
   const addMessage = (content: string, role: Message["role"]) => {
     const newMessage: Message = {
       id: Date.now().toString(),
@@ -52,7 +75,83 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateAssistantSettings = (settings: Partial<AssistantSettings>) => {
-    setAssistantSettings((prev) => ({ ...prev, ...settings }));
+    setAssistantSettings((prev) => {
+      const updated = { ...prev, ...settings };
+      console.log("Assistant settings updated:", updated);
+      return updated;
+    });
+  };
+
+  const handleOptionSelect = (value: string) => {
+    setSelectedOption(value);
+  };
+
+  const handleValidateChoice = () => {
+    if (!selectedOption) return;
+    if (currentStep === "mode" && selectedOption === "default") {
+      updateAssistantSettings({
+        mode: "default",
+        gender: "neutral",
+        tone: "cordial",
+        name: "Sam",
+      });
+      setCurrentStep("final");
+      setSelectedOption(null);
+      return;
+    }
+    if (currentStep === "name") {
+      if (selectedOption === "default") {
+        setSelectedName("Sam");
+        updateAssistantSettings({ name: "Sam" });
+      } else {
+        setIsCustomName(true);
+        return;
+      }
+    } else {
+      updateAssistantSettings({ [currentStep]: selectedOption } as any);
+    }
+    switch (currentStep) {
+      case "mode":
+        setCurrentStep("gender");
+        break;
+      case "gender":
+        setCurrentStep("tone");
+        break;
+      case "tone":
+        setCurrentStep("name");
+        break;
+      case "name":
+        setCurrentStep("final");
+        break;
+    }
+    setSelectedOption(null);
+  };
+
+  const handleValidateCustomName = () => {
+    if (customName.trim()) {
+      const name = customName.trim();
+      setSelectedName(name);
+      updateAssistantSettings({ name });
+      setCurrentStep("final");
+      setIsCustomName(false);
+    }
+  };
+
+  const handleCustomNameSubmit = () => {
+    if (selectedName) {
+      updateAssistantSettings({ name: selectedName });
+      setIsCustomName(false);
+      setCustomName("");
+      setSelectedName("");
+    }
+  };
+
+  const resetAssistantSetup = () => {
+    setCurrentStep("mode");
+    setSelectedOption(null);
+    setIsCustomName(false);
+    setCustomName("");
+    setSelectedName("");
   };
 
   return (
@@ -63,6 +162,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         addMessage,
         clearMessages,
         updateAssistantSettings,
+        currentStep,
+        setCurrentStep,
+        selectedOption,
+        setSelectedOption,
+        isCustomName,
+        setIsCustomName,
+        customName,
+        setCustomName,
+        selectedName,
+        setSelectedName,
+        handleOptionSelect,
+        handleValidateChoice,
+        handleValidateCustomName,
+        handleCustomNameSubmit,
+        resetAssistantSetup,
       }}
     >
       {children}

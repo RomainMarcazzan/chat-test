@@ -3,7 +3,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useRef, useMemo } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import {
   BottomSheetModal,
@@ -16,12 +16,21 @@ import { CustomButton } from "@/components/ui/CustomButton";
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
 export default function InitChatScreen() {
-  const { assistantSettings, updateAssistantSettings } = useChatContext();
-  const [currentStep, setCurrentStep] = useState<SetupStep>("mode");
-  const [customName, setCustomName] = useState("");
-  const [isCustomName, setIsCustomName] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [selectedName, setSelectedName] = useState("");
+  const {
+    assistantSettings,
+    currentStep,
+    selectedOption,
+    setSelectedOption,
+    isCustomName,
+    customName,
+    setCustomName,
+    selectedName,
+    handleOptionSelect,
+    handleValidateChoice,
+    handleValidateCustomName,
+    resetAssistantSetup,
+  } = useChatContext();
+
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
 
@@ -46,92 +55,6 @@ export default function InitChatScreen() {
     ],
   };
 
-  const stepTitles = {
-    mode: "Mode de l'assistant",
-    gender: "Genre de l'assistant",
-    tone: "Ton de l'assistant",
-    name: "Nom de l'assistant",
-    final: "Confirmation",
-  };
-
-  const handleOptionSelect = (value: string) => {
-    setSelectedOption(value);
-  };
-
-  const handleValidateChoice = () => {
-    if (!selectedOption) return;
-
-    if (currentStep === "mode" && selectedOption === "default") {
-      // If user chooses default mode, set all default values and go to final step
-      updateAssistantSettings({
-        mode: "default",
-        gender: "neutral",
-        tone: "cordial",
-        name: "Sam",
-      });
-      setCurrentStep("final");
-      setSelectedOption(null);
-      return;
-    }
-
-    if (currentStep === "name") {
-      if (selectedOption === "default") {
-        setSelectedName("Sam");
-        updateAssistantSettings({ name: "Sam" });
-      } else {
-        setIsCustomName(true);
-        return;
-      }
-    } else {
-      updateAssistantSettings({ [currentStep]: selectedOption });
-    }
-
-    // Move to next step
-    switch (currentStep) {
-      case "mode":
-        setCurrentStep("gender");
-        break;
-      case "gender":
-        setCurrentStep("tone");
-        break;
-      case "tone":
-        setCurrentStep("name");
-        break;
-      case "name":
-        setCurrentStep("final");
-        break;
-    }
-    setSelectedOption(null);
-  };
-
-  const handleValidateCustomName = () => {
-    if (customName.trim()) {
-      const name = customName.trim();
-      setSelectedName(name);
-      updateAssistantSettings({ name });
-      setCurrentStep("final");
-      setIsCustomName(false);
-    }
-  };
-
-  const handleCustomNameSubmit = () => {
-    if (selectedName) {
-      updateAssistantSettings({ name: selectedName });
-      setIsCustomName(false);
-      setCustomName("");
-      setSelectedName("");
-      bottomSheetModalRef.current?.dismiss();
-      router.navigate("/chat-ai/main-chat");
-    }
-  };
-
-  const handlePresentModalPress = useCallback(() => {
-    console.log("Presenting modal");
-    setCurrentStep("mode");
-    setSelectedOption("personalized");
-    bottomSheetModalRef.current?.present();
-  }, []);
-
   const AdaptiveTextInput = (props: any) =>
     Platform.OS === "ios" ? (
       <BottomSheetTextInput {...props} />
@@ -142,16 +65,13 @@ export default function InitChatScreen() {
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
       return (
-        <View
-          style={{
-            padding: 16,
-          }}
-        >
+        <View style={{ padding: 16 }}>
           <View style={{ marginTop: 16 }}>
             <CustomButton
               title="Ok ! Continuons"
               onPress={() => {
                 bottomSheetModalRef.current?.dismiss();
+                resetAssistantSetup();
                 router.navigate("/chat-ai/main-chat");
               }}
             />
@@ -159,14 +79,9 @@ export default function InitChatScreen() {
         </View>
       );
     }
-
     if (currentStep === "name" && isCustomName) {
       return (
-        <View
-          style={{
-            padding: 16,
-          }}
-        >
+        <View style={{ padding: 16 }}>
           <AdaptiveTextInput
             style={{
               padding: 12,
@@ -191,13 +106,8 @@ export default function InitChatScreen() {
         </View>
       );
     }
-
     return (
-      <View
-        style={{
-          padding: 16,
-        }}
-      >
+      <View style={{ padding: 16 }}>
         {stepOptions[currentStep]?.map((option) => (
           <TouchableOpacity
             key={option.value}
@@ -263,6 +173,12 @@ export default function InitChatScreen() {
     assistantSettings,
   ]);
 
+  const handlePresentModalPress = () => {
+    resetAssistantSetup();
+    setSelectedOption("personalized");
+    bottomSheetModalRef.current?.present();
+  };
+
   return (
     <>
       <ThemedView style={{ flex: 1, padding: 16 }}>
@@ -325,7 +241,6 @@ export default function InitChatScreen() {
             <ThemedText>{assistantSettings.name}</ThemedText>
           </View>
         </View>
-
         <View style={{ marginBottom: 20 }}>
           <CustomButton
             title="Modifier les paramètres"
