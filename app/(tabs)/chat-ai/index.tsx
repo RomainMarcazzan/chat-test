@@ -104,6 +104,7 @@ export default function InitChatScreen() {
             borderColor: "red",
           }}
         >
+          <ThemedText type="title">Choisissez un nom</ThemedText>
           {Platform.OS === "ios" ? (
             <BottomSheetTextInput
               style={{
