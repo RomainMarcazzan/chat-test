@@ -265,19 +265,60 @@ export default function InitChatScreen() {
               Changer ma réponse
             </ThemedText>
           </TouchableOpacity>
-          {/* Ton */}
+          {/* Ton - now as selectable list */}
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
               paddingVertical: 8,
               borderBottomWidth: 1,
               borderBottomColor: "#ccc",
             }}
           >
             <ThemedText type="defaultSemiBold">Ton:</ThemedText>
-            <ThemedText>{assistantSettings.tone}</ThemedText>
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
+              {stepOptions.tone.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    {
+                      paddingVertical: 6,
+                      paddingHorizontal: 12,
+                      borderRadius: 16,
+                      borderWidth: 1,
+                      borderColor: "#ccc",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginRight: 8,
+                      backgroundColor:
+                        assistantSettings.tone === option.value
+                          ? "#0a7ea4"
+                          : "#fff",
+                    },
+                  ]}
+                  onPress={() => {
+                    setSelectedOption(option.value);
+                    handleOptionSelect(option.value);
+                  }}
+                >
+                  {assistantSettings.tone === option.value && (
+                    <AntDesign
+                      name="check"
+                      size={14}
+                      color="#fff"
+                      style={{ marginRight: 4 }}
+                    />
+                  )}
+                  <ThemedText
+                    style={
+                      assistantSettings.tone === option.value
+                        ? { color: "#fff" }
+                        : undefined
+                    }
+                  >
+                    {option.label}
+                  </ThemedText>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
           <TouchableOpacity onPress={() => handleChangeStep("tone")}>
             <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
@@ -336,7 +377,23 @@ export default function InitChatScreen() {
             paddingBottom: insets.bottom,
           }}
         >
-          {renderStepContent}
+          {/* Only show options in bottom sheet if not tone step */}
+          {currentStep === "tone" ? (
+            <View style={{ padding: 16 }}>
+              <CustomButton
+                title="Valider mon choix"
+                onPress={() => {
+                  handleValidateChoice();
+                  if (isEditingSingleParam) {
+                    bottomSheetModalRef.current?.dismiss();
+                  }
+                }}
+                disabled={!selectedOption}
+              />
+            </View>
+          ) : (
+            renderStepContent
+          )}
         </BottomSheetScrollView>
       </BottomSheetModal>
     </>
