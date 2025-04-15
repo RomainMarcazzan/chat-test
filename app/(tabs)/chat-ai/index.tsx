@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
 import {
@@ -17,7 +18,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type SetupStep = "mode" | "gender" | "tone" | "name";
+type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
 export default function InitChatScreen() {
   const { assistantSettings, updateAssistantSettings } = useChatContext();
@@ -25,7 +26,6 @@ export default function InitChatScreen() {
   const [customName, setCustomName] = useState("");
   const [isCustomName, setIsCustomName] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isNameValidated, setIsNameValidated] = useState(false);
   const [selectedName, setSelectedName] = useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
@@ -56,6 +56,7 @@ export default function InitChatScreen() {
     gender: "Genre de l'assistant",
     tone: "Ton de l'assistant",
     name: "Nom de l'assistant",
+    final: "Confirmation",
   };
 
   const handleOptionSelect = (value: string) => {
@@ -65,17 +66,30 @@ export default function InitChatScreen() {
   const handleValidateChoice = () => {
     if (!selectedOption) return;
 
-    if (currentStep === "name") {
-      if (selectedOption === "default") {
-        setSelectedName("Sam");
-        setIsNameValidated(true);
-      } else {
-        setIsCustomName(true);
-      }
+    if (currentStep === "mode" && selectedOption === "default") {
+      // If user chooses default mode, set all default values and go to final step
+      updateAssistantSettings({
+        mode: "default",
+        gender: "neutral",
+        tone: "cordial",
+        name: "Sam",
+      });
+      setCurrentStep("final");
+      setSelectedOption(null);
       return;
     }
 
-    updateAssistantSettings({ [currentStep]: selectedOption });
+    if (currentStep === "name") {
+      if (selectedOption === "default") {
+        setSelectedName("Sam");
+        updateAssistantSettings({ name: "Sam" });
+      } else {
+        setIsCustomName(true);
+        return;
+      }
+    } else {
+      updateAssistantSettings({ [currentStep]: selectedOption });
+    }
 
     // Move to next step
     switch (currentStep) {
@@ -88,14 +102,20 @@ export default function InitChatScreen() {
       case "tone":
         setCurrentStep("name");
         break;
+      case "name":
+        setCurrentStep("final");
+        break;
     }
     setSelectedOption(null);
   };
 
   const handleValidateCustomName = () => {
     if (customName.trim()) {
-      setSelectedName(customName.trim());
-      setIsNameValidated(true);
+      const name = customName.trim();
+      setSelectedName(name);
+      updateAssistantSettings({ name });
+      setCurrentStep("final");
+      setIsCustomName(false);
     }
   };
 
@@ -103,7 +123,6 @@ export default function InitChatScreen() {
     if (selectedName) {
       updateAssistantSettings({ name: selectedName });
       setIsCustomName(false);
-      setIsNameValidated(false);
       setCustomName("");
       setSelectedName("");
       bottomSheetModalRef.current?.dismiss();
@@ -126,40 +145,33 @@ export default function InitChatScreen() {
     );
 
   const renderStepContent = useMemo(() => {
-    if (currentStep === "name" && (isCustomName || isNameValidated)) {
-      if (isNameValidated) {
-        return (
-          <View
-            style={{
-              padding: 16,
-              borderWidth: 2,
-              borderColor: "red",
-            }}
-          >
-            <ThemedText type="title">Nom choisi : {selectedName}</ThemedText>
-            <View
-              style={{
-                marginTop: 16,
-              }}
-            >
-              <Button
-                title="Ok ! Continuons"
-                onPress={handleCustomNameSubmit}
-              />
-            </View>
-          </View>
-        );
-      }
-
+    if (currentStep === "final") {
       return (
         <View
           style={{
             padding: 16,
-            borderWidth: 2,
-            borderColor: "red",
           }}
         >
-          <ThemedText type="title">Choisissez un nom</ThemedText>
+          <View style={{ marginTop: 16 }}>
+            <Button
+              title="Ok ! Continuons"
+              onPress={() => {
+                bottomSheetModalRef.current?.dismiss();
+                router.navigate("/chat-ai/main-chat");
+              }}
+            />
+          </View>
+        </View>
+      );
+    }
+
+    if (currentStep === "name" && isCustomName) {
+      return (
+        <View
+          style={{
+            padding: 16,
+          }}
+        >
           <AdaptiveTextInput
             style={{
               padding: 12,
@@ -174,11 +186,7 @@ export default function InitChatScreen() {
             placeholder="Entrez un nom"
             placeholderTextColor="#999"
           />
-          <View
-            style={{
-              marginTop: 16,
-            }}
-          >
+          <View style={{ marginTop: 16 }}>
             <Button
               title="Valider mon choix"
               onPress={handleValidateCustomName}
@@ -193,21 +201,21 @@ export default function InitChatScreen() {
       <View
         style={{
           padding: 16,
-          borderWidth: 2,
-          borderColor: "green",
         }}
       >
-        <ThemedText type="title">{stepTitles[currentStep]}</ThemedText>
-        {stepOptions[currentStep].map((option) => (
+        {stepOptions[currentStep]?.map((option) => (
           <TouchableOpacity
             key={option.value}
             style={[
               {
-                padding: 16,
-                borderRadius: 8,
+                padding: 8,
+                borderRadius: 16,
                 borderWidth: 1,
                 borderColor: "#ccc",
                 marginTop: 8,
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 12,
               },
               selectedOption === option.value && {
                 backgroundColor: "#0a7ea4",
@@ -215,7 +223,31 @@ export default function InitChatScreen() {
             ]}
             onPress={() => handleOptionSelect(option.value)}
           >
-            <ThemedText>{option.label}</ThemedText>
+            <View
+              style={[
+                {
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor:
+                    selectedOption === option.value ? "#fff" : "#ccc",
+                  justifyContent: "center",
+                  alignItems: "center",
+                },
+              ]}
+            >
+              {selectedOption === option.value && (
+                <AntDesign name="check" size={14} color="#fff" />
+              )}
+            </View>
+            <ThemedText
+              style={
+                selectedOption === option.value ? { color: "#fff" } : undefined
+              }
+            >
+              {option.label}
+            </ThemedText>
           </TouchableOpacity>
         ))}
         <View style={{ marginTop: 16 }}>
@@ -230,10 +262,10 @@ export default function InitChatScreen() {
   }, [
     currentStep,
     isCustomName,
-    isNameValidated,
     customName,
     selectedOption,
     selectedName,
+    assistantSettings,
   ]);
 
   return (
@@ -299,16 +331,10 @@ export default function InitChatScreen() {
           </View>
         </View>
 
-        <View style={{ gap: 16, marginBottom: 20 }}>
+        <View style={{ marginBottom: 20 }}>
           <Button
             title="Modifier les paramètres"
             onPress={handlePresentModalPress}
-          />
-          <Button
-            title="Commencer la discussion"
-            onPress={() => {
-              router.navigate("/chat-ai/main-chat");
-            }}
           />
         </View>
       </ThemedView>
