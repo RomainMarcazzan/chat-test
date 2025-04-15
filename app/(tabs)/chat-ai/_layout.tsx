@@ -8,8 +8,16 @@ export default function ChatLayout() {
         <Stack.Screen
           name="index"
           options={{
-            title: "Chat AI",
+            title: "Assistant Personnel",
             headerShown: true,
+          }}
+        />
+        <Stack.Screen
+          name="main-chat"
+          options={{
+            title: "Main Chat",
+            headerShown: true,
+            animation: "none",
           }}
         />
       </Stack>
