@@ -1,13 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
-import {
-  Button,
-  Platform,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, TextInput, TouchableOpacity, View } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -17,6 +11,7 @@ import {
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CustomButton } from "@/components/ui/CustomButton";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -132,9 +127,9 @@ export default function InitChatScreen() {
 
   const handlePresentModalPress = useCallback(() => {
     console.log("Presenting modal");
-
-    bottomSheetModalRef.current?.present();
     setCurrentStep("mode");
+    setSelectedOption("personalized");
+    bottomSheetModalRef.current?.present();
   }, []);
 
   const AdaptiveTextInput = (props: any) =>
@@ -153,7 +148,7 @@ export default function InitChatScreen() {
           }}
         >
           <View style={{ marginTop: 16 }}>
-            <Button
+            <CustomButton
               title="Ok ! Continuons"
               onPress={() => {
                 bottomSheetModalRef.current?.dismiss();
@@ -187,7 +182,7 @@ export default function InitChatScreen() {
             placeholderTextColor="#999"
           />
           <View style={{ marginTop: 16 }}>
-            <Button
+            <CustomButton
               title="Valider mon choix"
               onPress={handleValidateCustomName}
               disabled={!customName.trim()}
@@ -251,7 +246,7 @@ export default function InitChatScreen() {
           </TouchableOpacity>
         ))}
         <View style={{ marginTop: 16 }}>
-          <Button
+          <CustomButton
             title="Valider mon choix"
             onPress={handleValidateChoice}
             disabled={!selectedOption}
@@ -332,9 +327,10 @@ export default function InitChatScreen() {
         </View>
 
         <View style={{ marginBottom: 20 }}>
-          <Button
+          <CustomButton
             title="Modifier les paramètres"
             onPress={handlePresentModalPress}
+            variant="secondary"
           />
         </View>
       </ThemedView>
@@ -343,6 +339,19 @@ export default function InitChatScreen() {
         handleComponent={null}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
+        backgroundStyle={{
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          shadowColor: "#000",
+          shadowOffset: {
+            width: 0,
+            height: -4,
+          },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 5,
+        }}
+        android_keyboardInputMode="adjustResize"
       >
         <BottomSheetScrollView
           contentContainerStyle={{
