@@ -23,7 +23,7 @@ type ChatContextType = {
 };
 
 const defaultAssistantSettings: AssistantSettings = {
-  mode: "default",
+  mode: "personalized",
   gender: "neutral",
   tone: "cordial",
   name: "Sam",

@@ -24,13 +24,16 @@ export default function InitChatScreen() {
   const [currentStep, setCurrentStep] = useState<SetupStep>("mode");
   const [customName, setCustomName] = useState("");
   const [isCustomName, setIsCustomName] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [isNameValidated, setIsNameValidated] = useState(false);
+  const [selectedName, setSelectedName] = useState("");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
-  console.log("insets", { insets, paltform: Platform.OS });
+
   const stepOptions = {
     mode: [
-      { label: "Garder l'assistant par défaut", value: "default" },
       { label: "Personnaliser", value: "personalized" },
+      { label: "Garder l'assistant par défaut", value: "default" },
     ],
     gender: [
       { label: "Féminin", value: "feminine" },
@@ -56,16 +59,23 @@ export default function InitChatScreen() {
   };
 
   const handleOptionSelect = (value: string) => {
+    setSelectedOption(value);
+  };
+
+  const handleValidateChoice = () => {
+    if (!selectedOption) return;
+
     if (currentStep === "name") {
-      if (value === "default") {
-        updateAssistantSettings({ name: "Sam" });
+      if (selectedOption === "default") {
+        setSelectedName("Sam");
+        setIsNameValidated(true);
       } else {
         setIsCustomName(true);
       }
       return;
     }
 
-    updateAssistantSettings({ [currentStep]: value });
+    updateAssistantSettings({ [currentStep]: selectedOption });
 
     // Move to next step
     switch (currentStep) {
@@ -79,13 +89,25 @@ export default function InitChatScreen() {
         setCurrentStep("name");
         break;
     }
+    setSelectedOption(null);
+  };
+
+  const handleValidateCustomName = () => {
+    if (customName.trim()) {
+      setSelectedName(customName.trim());
+      setIsNameValidated(true);
+    }
   };
 
   const handleCustomNameSubmit = () => {
-    if (customName.trim()) {
-      updateAssistantSettings({ name: customName.trim() });
+    if (selectedName) {
+      updateAssistantSettings({ name: selectedName });
       setIsCustomName(false);
+      setIsNameValidated(false);
       setCustomName("");
+      setSelectedName("");
+      bottomSheetModalRef.current?.dismiss();
+      router.navigate("/chat-ai/main-chat");
     }
   };
 
@@ -104,7 +126,31 @@ export default function InitChatScreen() {
     );
 
   const renderStepContent = useMemo(() => {
-    if (currentStep === "name" && isCustomName) {
+    if (currentStep === "name" && (isCustomName || isNameValidated)) {
+      if (isNameValidated) {
+        return (
+          <View
+            style={{
+              padding: 16,
+              borderWidth: 2,
+              borderColor: "red",
+            }}
+          >
+            <ThemedText type="title">Nom choisi : {selectedName}</ThemedText>
+            <View
+              style={{
+                marginTop: 16,
+              }}
+            >
+              <Button
+                title="Ok ! Continuons"
+                onPress={handleCustomNameSubmit}
+              />
+            </View>
+          </View>
+        );
+      }
+
       return (
         <View
           style={{
@@ -130,16 +176,12 @@ export default function InitChatScreen() {
           />
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "100%",
               marginTop: 16,
             }}
           >
-            <Button title="Retour" onPress={() => setIsCustomName(false)} />
             <Button
-              title="Valider"
-              onPress={handleCustomNameSubmit}
+              title="Valider mon choix"
+              onPress={handleValidateCustomName}
               disabled={!customName.trim()}
             />
           </View>
@@ -167,7 +209,7 @@ export default function InitChatScreen() {
                 borderColor: "#ccc",
                 marginTop: 8,
               },
-              assistantSettings[currentStep] === option.value && {
+              selectedOption === option.value && {
                 backgroundColor: "#0a7ea4",
               },
             ]}
@@ -176,9 +218,23 @@ export default function InitChatScreen() {
             <ThemedText>{option.label}</ThemedText>
           </TouchableOpacity>
         ))}
+        <View style={{ marginTop: 16 }}>
+          <Button
+            title="Valider mon choix"
+            onPress={handleValidateChoice}
+            disabled={!selectedOption}
+          />
+        </View>
       </View>
     );
-  }, [currentStep, isCustomName, customName]);
+  }, [
+    currentStep,
+    isCustomName,
+    isNameValidated,
+    customName,
+    selectedOption,
+    selectedName,
+  ]);
 
   return (
     <>
