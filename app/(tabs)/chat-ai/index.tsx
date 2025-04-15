@@ -12,6 +12,7 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CustomButton } from "@/components/ui/CustomButton";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -57,6 +58,8 @@ export default function InitChatScreen() {
       { label: "Je veux choisir un autre nom", value: "custom" },
     ],
   };
+
+  const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
 
   const AdaptiveTextInput = (props: any) =>
     Platform.OS === "ios" ? (
@@ -219,8 +222,12 @@ export default function InitChatScreen() {
   return (
     <>
       <ThemedView style={{ flex: 1, padding: 16 }}>
+        {/* Progress Bar */}
+        <ProgressBar
+          step={stepOrder.indexOf(currentStep)}
+          total={stepOrder.length}
+        />
         <View style={{ flex: 1, gap: 16 }}>
-          <ThemedText type="title">Paramètres de l'assistant</ThemedText>
           {/* Mode */}
           <View
             style={{
