@@ -15,6 +15,7 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type SetupStep = "mode" | "gender" | "tone" | "name";
 
@@ -24,7 +25,8 @@ export default function InitChatScreen() {
   const [customName, setCustomName] = useState("");
   const [isCustomName, setIsCustomName] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-
+  const insets = useSafeAreaInsets();
+  console.log("insets", { insets, paltform: Platform.OS });
   const stepOptions = {
     mode: [
       { label: "Garder l'assistant par défaut", value: "default" },
@@ -260,7 +262,13 @@ export default function InitChatScreen() {
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
       >
-        <BottomSheetScrollView>{renderStepContent}</BottomSheetScrollView>
+        <BottomSheetScrollView
+          contentContainerStyle={{
+            paddingBottom: insets.bottom,
+          }}
+        >
+          {renderStepContent}
+        </BottomSheetScrollView>
       </BottomSheetModal>
     </>
   );
