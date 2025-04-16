@@ -1,6 +1,11 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 interface ProgressBarProps {
   step: number;
@@ -12,14 +17,20 @@ export function ProgressBar({ step, total }: ProgressBarProps) {
   const barColor = useThemeColor({}, "tint");
   const backgroundColor = useThemeColor({}, "progressBackground");
 
+  const animatedProgress = useSharedValue(progress);
+
+  React.useEffect(() => {
+    animatedProgress.value = withTiming(progress, { duration: 400 });
+  }, [progress, animatedProgress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: `${animatedProgress.value * 100}%`,
+    backgroundColor: barColor,
+  }));
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <View
-        style={[
-          styles.bar,
-          { width: `${progress * 100}%`, backgroundColor: barColor },
-        ]}
-      />
+      <Animated.View style={[styles.bar, animatedStyle]} />
     </View>
   );
 }

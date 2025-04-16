@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CustomButton } from "@/components/ui/CustomButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { ToneSelection, ToneOption } from "@/components/chat/ToneSelection";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -33,6 +34,7 @@ export default function InitChatScreen() {
     setCurrentStep,
     isEditingSingleParam,
     setIsEditingSingleParam,
+    updateAssistantSettings,
   } = useChatContext();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -52,7 +54,7 @@ export default function InitChatScreen() {
       { label: "Formelle", value: "formal" },
       { label: "Cordiale", value: "cordial" },
       { label: "Humoristique", value: "humorous" },
-    ],
+    ] as ToneOption[],
     name: [
       { label: "Sam me convient", value: "default" },
       { label: "Je veux choisir un autre nom", value: "custom" },
@@ -265,7 +267,7 @@ export default function InitChatScreen() {
               Changer ma réponse
             </ThemedText>
           </TouchableOpacity>
-          {/* Ton - now as selectable list */}
+          {/* Ton */}
           <View
             style={{
               paddingVertical: 8,
@@ -274,51 +276,15 @@ export default function InitChatScreen() {
             }}
           >
             <ThemedText type="defaultSemiBold">Ton:</ThemedText>
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
-              {stepOptions.tone.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[
-                    {
-                      paddingVertical: 6,
-                      paddingHorizontal: 12,
-                      borderRadius: 16,
-                      borderWidth: 1,
-                      borderColor: "#ccc",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginRight: 8,
-                      backgroundColor:
-                        assistantSettings.tone === option.value
-                          ? "#0a7ea4"
-                          : "#fff",
-                    },
-                  ]}
-                  onPress={() => {
-                    setSelectedOption(option.value);
-                    handleOptionSelect(option.value);
-                  }}
-                >
-                  {assistantSettings.tone === option.value && (
-                    <AntDesign
-                      name="check"
-                      size={14}
-                      color="#fff"
-                      style={{ marginRight: 4 }}
-                    />
-                  )}
-                  <ThemedText
-                    style={
-                      assistantSettings.tone === option.value
-                        ? { color: "#fff" }
-                        : undefined
-                    }
-                  >
-                    {option.label}
-                  </ThemedText>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ToneSelection
+              toneOptions={stepOptions.tone}
+              selectedTone={assistantSettings.tone}
+              onSelect={(tone) => {
+                setSelectedOption(tone);
+                handleOptionSelect(tone);
+                updateAssistantSettings({ tone });
+              }}
+            />
           </View>
           <TouchableOpacity onPress={() => handleChangeStep("tone")}>
             <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>

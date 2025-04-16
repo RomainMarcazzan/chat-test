@@ -1,4 +1,9 @@
-import { ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
@@ -8,6 +13,7 @@ interface CustomButtonProps {
   disabled?: boolean;
   isLoading?: boolean;
   variant?: "primary" | "secondary";
+  style?: ViewStyle;
 }
 
 export function CustomButton({
@@ -16,6 +22,7 @@ export function CustomButton({
   disabled = false,
   isLoading = false,
   variant = "primary",
+  style,
 }: CustomButtonProps) {
   const backgroundColor = useThemeColor(
     {},
@@ -35,6 +42,7 @@ export function CustomButton({
         { backgroundColor },
         variant === "secondary" && styles.secondaryButton,
         disabled && styles.disabledButton,
+        style,
       ]}
     >
       {isLoading ? (
