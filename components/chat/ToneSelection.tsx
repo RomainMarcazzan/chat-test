@@ -9,6 +9,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme.web";
 
 export type ToneOption = {
   label: string;
@@ -32,6 +33,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
     toneOptions.findIndex((t) => t.value === selectedTone)
   );
   const screenWidth = Dimensions.get("window").width;
+  const theme = useColorScheme() ?? "light";
 
   // Animated shared value for indicator
   const animatedIndex = useSharedValue(carouselIndex);
@@ -78,13 +80,13 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                   style={{
                     borderWidth: 1,
                     borderRadius: 10,
-                    borderColor: "#ccc",
+                    borderColor: Colors[theme].lightGrey,
                     padding: 6,
                     height: 200,
                     alignItems: "center",
                     justifyContent: "center",
                     overflow: "hidden",
-                    backgroundColor: "#ccc",
+                    backgroundColor: Colors[theme].lightGrey,
                   }}
                 >
                   <View
@@ -101,7 +103,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                     <AntDesign
                       name="user"
                       size={200}
-                      color={Colors.light.tint}
+                      color={Colors[theme].tint}
                     />
                   </View>
 
@@ -130,6 +132,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                     style={{
                       flex: 1,
                       justifyContent: "flex-end",
+                      alignSelf: "stretch",
                     }}
                   >
                     <View

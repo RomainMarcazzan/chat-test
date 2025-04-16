@@ -14,6 +14,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CustomButton } from "@/components/ui/CustomButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ToneSelection, ToneOption } from "@/components/chat/ToneSelection";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme.web";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -39,6 +41,7 @@ export default function InitChatScreen() {
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
+  const theme = useColorScheme() ?? "light";
 
   const stepOptions = {
     mode: [
@@ -347,6 +350,7 @@ export default function InitChatScreen() {
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
           shadowColor: "#000",
+          backgroundColor: Colors[theme].lightGrey,
           shadowOffset: {
             width: 0,
             height: -4,

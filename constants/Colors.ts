@@ -15,6 +15,7 @@ export const Colors = {
     tabIconDefault: "#687076",
     tabIconSelected: tintColorLight,
     progressBackground: "#E4E7EB",
+    lightGrey: "#F1F3F5",
   },
   dark: {
     text: "#ECEDEE",
@@ -24,5 +25,6 @@ export const Colors = {
     tabIconDefault: "#9BA1A6",
     tabIconSelected: tintColorDark,
     progressBackground: "#2B3033",
+    lightGrey: "#F1F3F5",
   },
 };
