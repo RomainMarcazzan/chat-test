@@ -65,7 +65,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
 
   const addMessage = (content: string, role: Message["role"]) => {
     const newMessage: Message = {
-      id: Date.now().toString(),
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
       content,
       role,
       timestamp: new Date(),

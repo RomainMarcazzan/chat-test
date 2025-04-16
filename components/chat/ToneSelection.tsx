@@ -167,7 +167,6 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
           );
         }}
       />
-      {/* Animated indicator */}
       <View
         style={{
           flexDirection: "row",

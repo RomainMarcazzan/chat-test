@@ -1,7 +1,13 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
-import { Platform, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
 import { useChatContext } from "@/contexts/ChatContext";
@@ -13,7 +19,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CustomButton } from "@/components/ui/CustomButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { ToneSelection, ToneOption } from "@/components/chat/ToneSelection";
+import { ToneOption, ToneSelection } from "@/components/chat/ToneSelection";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 
@@ -37,11 +43,15 @@ export default function InitChatScreen() {
     isEditingSingleParam,
     setIsEditingSingleParam,
     updateAssistantSettings,
+    messages,
+    addMessage,
+    clearMessages,
   } = useChatContext();
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const stepOptions = {
     mode: [
@@ -85,6 +95,13 @@ export default function InitChatScreen() {
 
   const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
 
+  const formatTimestamp = (date: Date) => {
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const AdaptiveTextInput = (props: any) =>
     Platform.OS === "ios" ? (
       <BottomSheetTextInput {...props} />
@@ -104,7 +121,82 @@ export default function InitChatScreen() {
         assistantSettings.name === "Sam" ? "default" : "custom"
       );
     }
+    scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [currentStep, assistantSettings, setSelectedOption]);
+
+  const userName = "Romain";
+
+  const handlePresentModalPress = () => {
+    resetAssistantSetup();
+    setSelectedOption("personalized");
+    setIsEditingSingleParam(false);
+    bottomSheetModalRef.current?.present();
+  };
+
+  const handleChangeStep = (step: SetupStep) => {
+    setCurrentStep(step);
+    setIsEditingSingleParam(true);
+    bottomSheetModalRef.current?.present();
+  };
+  useEffect(() => {
+    if (currentStep === "mode") {
+      clearMessages();
+      addMessage(
+        `Bonjour ${userName} ! Bravo ! Votre compte a bien été créé.`,
+        "assistant"
+      );
+      addMessage(
+        "Je serai votre assistant personnel. Mon rôle est de vous aider à collecter et organiser vos souvenirs comme jamais auparavant.",
+        "assistant"
+      );
+      addMessage(
+        "Vous pouvez choisir ma personnalité, ce qui me permettra de vous aider au mieux tout en rendant votre expérience authentique et agréable.",
+        "assistant"
+      );
+      addMessage("Que voulez-vous faire ?", "assistant");
+      handlePresentModalPress();
+    }
+    if (currentStep === "gender") {
+      addMessage(
+        `${
+          assistantSettings.mode === "default" ? "Par défaut" : "Personnalisé"
+        }`,
+        "user"
+      );
+      addMessage("D'abord, choisissez votre genre.", "assistant");
+    }
+    if (currentStep === "tone") {
+      addMessage(`${assistantSettings.gender}`, "user");
+      addMessage(
+        "Maintenant, quelle tonalité préférez-vous pour nos échanges?",
+        "assistant"
+      );
+    }
+    if (currentStep === "name") {
+      addMessage(`${assistantSettings.tone}`, "user");
+      addMessage(
+        "Parfait ! Il ne reste plus qu'à me choisir un nom. Comme ma fonction est la Sauvegarde et l'Archivage de la Mémoire, on m'a temporairement baptisée Sam.",
+        "assistant"
+      );
+      addMessage("Souhaitez-vous changer mon nom ?", "assistant");
+    }
+    if (currentStep === "final") {
+      addMessage(
+        `${
+          selectedOption === "custom"
+            ? customName
+            : assistantSettings.name + " me convient"
+        }`,
+        "user"
+      );
+      addMessage(
+        `Mon nom est donc: ${
+          selectedOption === "custom" ? customName : assistantSettings.name
+        }.${"\n"}Enchanté ${userName} !`,
+        "assistant"
+      );
+    }
+  }, [currentStep]);
 
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
@@ -230,19 +322,6 @@ export default function InitChatScreen() {
     isEditingSingleParam,
   ]);
 
-  const handlePresentModalPress = () => {
-    resetAssistantSetup();
-    setSelectedOption("personalized");
-    setIsEditingSingleParam(false);
-    bottomSheetModalRef.current?.present();
-  };
-
-  const handleChangeStep = (step: SetupStep) => {
-    setCurrentStep(step);
-    setIsEditingSingleParam(true);
-    bottomSheetModalRef.current?.present();
-  };
-
   return (
     <>
       <ThemedView style={{ flex: 1, padding: 16 }}>
@@ -251,8 +330,54 @@ export default function InitChatScreen() {
           step={stepOrder.indexOf(currentStep)}
           total={stepOrder.length}
         />
-        <View style={{ flex: 1, gap: 16 }}>
-          {/* Mode */}
+        <ScrollView ref={scrollViewRef} style={{ flex: 1, borderWidth: 1 }}>
+          {messages.map((message) => (
+            <View
+              key={message.id}
+              style={{
+                alignSelf: message.role === "user" ? "flex-end" : "flex-start",
+                maxWidth: "80%",
+                marginVertical: 4,
+              }}
+            >
+              <ThemedView
+                style={{
+                  backgroundColor:
+                    message.role === "user" ? "#007AFF20" : "#00000010",
+                  padding: 12,
+                  borderRadius: 16,
+                  borderBottomRightRadius: message.role === "user" ? 4 : 16,
+                  borderBottomLeftRadius: message.role === "assistant" ? 4 : 16,
+                }}
+              >
+                <ThemedText>{message.content}</ThemedText>
+                <ThemedText
+                  style={{
+                    fontSize: 12,
+                    opacity: 0.5,
+                    marginTop: 4,
+                    textAlign: message.role === "user" ? "right" : "left",
+                  }}
+                >
+                  {formatTimestamp(message.timestamp)}
+                </ThemedText>
+              </ThemedView>
+            </View>
+          ))}
+          {currentStep === "tone" && (
+            <ToneSelection
+              toneOptions={stepOptions.tone}
+              selectedTone={assistantSettings.tone}
+              onSelect={(tone) => {
+                setSelectedOption(tone);
+                handleOptionSelect(tone);
+                updateAssistantSettings({ tone });
+              }}
+            />
+          )}
+          <View style={{ height: 200 }} />
+        </ScrollView>
+        {/* <View style={{ flex: 1, gap: 16 }}>
           <View
             style={{
               flexDirection: "row",
@@ -270,7 +395,6 @@ export default function InitChatScreen() {
                 : "Personnalisé"}
             </ThemedText>
           </View>
-          {/* Genre */}
           <View
             style={{
               flexDirection: "row",
@@ -289,7 +413,6 @@ export default function InitChatScreen() {
               Changer ma réponse
             </ThemedText>
           </TouchableOpacity>
-          {/* Ton */}
           <View
             style={{
               paddingVertical: 8,
@@ -313,7 +436,6 @@ export default function InitChatScreen() {
               Changer ma réponse
             </ThemedText>
           </TouchableOpacity>
-          {/* Nom */}
           <View
             style={{
               flexDirection: "row",
@@ -332,14 +454,14 @@ export default function InitChatScreen() {
               Changer ma réponse
             </ThemedText>
           </TouchableOpacity>
-        </View>
-        <View style={{ marginBottom: 20 }}>
+        </View> */}
+        {/* <View style={{ marginBottom: 20 }}>
           <CustomButton
             title="Modifier les paramètres"
             onPress={handlePresentModalPress}
             variant="secondary"
           />
-        </View>
+        </View> */}
       </ThemedView>
       <BottomSheetModal
         ref={bottomSheetModalRef}
