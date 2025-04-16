@@ -22,9 +22,8 @@ export const CustomCard: React.FC<CustomCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 24,
-    alignItems: "center",
+    borderRadius: 10,
+    padding: 12,
     borderWidth: 1,
     borderColor: "#ccc",
     shadowColor: "#000",
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
   },
   selected: {
     borderColor: "#0a7ea4",
-    borderWidth: 3,
+    borderWidth: 1,
     shadowColor: "#0a7ea4",
     shadowOpacity: 0.15,
   },

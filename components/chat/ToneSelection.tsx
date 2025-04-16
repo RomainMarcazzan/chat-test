@@ -8,10 +8,13 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { Colors } from "@/constants/Colors";
 
 export type ToneOption = {
   label: string;
   value: "formal" | "cordial" | "humorous";
+  description: string;
+  message: string;
 };
 
 type ToneSelectionProps = {
@@ -71,40 +74,91 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
           return (
             <View style={{ width: screenWidth - 64, marginHorizontal: 8 }}>
               <CustomCard selected={isSelected}>
-                <TouchableOpacity
-                  onPress={() => onSelect(item.value)}
+                <View
                   style={{
-                    position: "absolute",
-                    top: 12,
-                    left: 12,
-                    zIndex: 2,
-                    width: 20,
-                    height: 20,
-                    borderRadius: 14,
                     borderWidth: 1,
-                    borderColor: isSelected ? "#0a7ea4" : "#ccc",
-                    backgroundColor: isSelected ? "#0a7ea4" : "#fff",
-                    justifyContent: "center",
+                    borderRadius: 10,
+                    borderColor: "#ccc",
+                    padding: 6,
+                    height: 200,
                     alignItems: "center",
+                    justifyContent: "center",
+                    overflow: "hidden",
+                    backgroundColor: "#ccc",
                   }}
                 >
-                  {isSelected && (
-                    <AntDesign name="check" size={14} color="#fff" />
-                  )}
-                </TouchableOpacity>
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <AntDesign
+                      name="user"
+                      size={200}
+                      color={Colors.light.tint}
+                    />
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => onSelect(item.value)}
+                    style={{
+                      position: "absolute",
+                      top: 12,
+                      left: 12,
+                      zIndex: 2,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 14,
+                      borderWidth: 1,
+                      borderColor: isSelected ? "#ccc" : "#0a7ea4",
+                      backgroundColor: isSelected ? "#0a7ea4" : "#fff",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {isSelected && (
+                      <AntDesign name="check" size={14} color="#fff" />
+                    )}
+                  </TouchableOpacity>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    <View
+                      style={{
+                        padding: 6,
+                        borderRadius: 10,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                      }}
+                    >
+                      <ThemedText
+                        style={{
+                          color: "#fff",
+                        }}
+                      >
+                        {item.description}
+                      </ThemedText>
+                    </View>
+                  </View>
+                </View>
                 <ThemedText
                   type="title"
-                  style={{ fontSize: 22, marginBottom: 8, marginTop: 8 }}
+                  style={{
+                    fontSize: 18,
+                    marginVertical: 8,
+                  }}
                 >
                   {item.label}
                 </ThemedText>
-                <ThemedText style={{ color: "#888" }}>
-                  {item.value === "formal"
-                    ? "Un ton professionnel et respectueux."
-                    : item.value === "cordial"
-                    ? "Un ton amical et chaleureux."
-                    : "Un ton léger et humoristique."}
-                </ThemedText>
+                <ThemedText style={{}}>{item.message}</ThemedText>
               </CustomCard>
             </View>
           );
@@ -120,7 +174,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
       >
         {toneOptions.map((_, idx) => {
           const animatedStyle = useAnimatedStyle(() => ({
-            width: withSpring(animatedIndex.value === idx ? 20 : 8, {
+            width: withSpring(animatedIndex.value === idx ? 32 : 16, {
               damping: 15,
               stiffness: 120,
             }),
