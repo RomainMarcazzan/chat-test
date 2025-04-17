@@ -2,6 +2,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { router } from "expo-router";
 import {
+  Keyboard,
   Platform,
   ScrollView,
   TextInput,
@@ -25,6 +26,13 @@ import { useColorScheme } from "@/hooks/useColorScheme.web";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
+const AdaptiveTextInput = (props: any) =>
+  Platform.OS === "ios" ? (
+    <BottomSheetTextInput {...props} />
+  ) : (
+    <TextInput {...props} />
+  );
+
 export default function InitChatScreen() {
   const {
     assistantSettings,
@@ -37,6 +45,7 @@ export default function InitChatScreen() {
     messages,
     addMessage,
     clearMessages,
+    setCustomName,
   } = useChatContext();
 
   const {
@@ -93,13 +102,6 @@ export default function InitChatScreen() {
   };
 
   const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
-
-  const AdaptiveTextInput = (props: any) =>
-    Platform.OS === "ios" ? (
-      <BottomSheetTextInput {...props} />
-    ) : (
-      <TextInput {...props} />
-    );
 
   useEffect(() => {
     if (currentStep === "mode") {
@@ -200,6 +202,7 @@ export default function InitChatScreen() {
       return (
         <View style={{ padding: 16 }}>
           <AdaptiveTextInput
+            autoFocus
             style={{
               padding: 12,
               borderWidth: 1,
@@ -209,7 +212,7 @@ export default function InitChatScreen() {
               color: "#000",
             }}
             value={customName}
-            onChangeText={(text: string) => handleOptionSelect(text)}
+            onChangeText={(text: string) => setCustomName(text)}
             placeholder="Entrez un nom"
             placeholderTextColor="#999"
           />
@@ -217,6 +220,7 @@ export default function InitChatScreen() {
             <CustomButton
               title="Valider mon choix"
               onPress={() => {
+                Keyboard.dismiss();
                 handleValidateCustomName();
               }}
               disabled={!customName.trim()}
@@ -372,6 +376,7 @@ export default function InitChatScreen() {
         android_keyboardInputMode="adjustResize"
       >
         <BottomSheetScrollView
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingBottom: insets.bottom,
           }}

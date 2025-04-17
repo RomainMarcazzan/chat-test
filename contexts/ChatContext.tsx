@@ -40,6 +40,7 @@ type ChatContextType = {
   handleValidateChoice: () => void;
   handleValidateCustomName: () => void;
   resetAssistantSetup: () => void;
+  setCustomName: (name: string) => void;
 };
 
 const defaultAssistantSettings: AssistantSettings = {
@@ -169,6 +170,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setCustomName = (name: string) => {
+    setAssistantSetup((prev) => ({ ...prev, customName: name }));
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -182,6 +187,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         handleValidateChoice,
         handleValidateCustomName,
         resetAssistantSetup,
+        setCustomName,
       }}
     >
       {children}
