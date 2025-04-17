@@ -80,10 +80,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const updateAssistantSettings = (settings: Partial<AssistantSettings>) => {
     setAssistantSettings((prev) => {
       const updated = { ...prev, ...settings };
-      console.log("Assistant settings updated:", {
-        updated,
-        isEditingSingleParam,
-      });
+
       return updated;
     });
   };

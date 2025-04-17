@@ -322,10 +322,24 @@ export default function InitChatScreen() {
     isEditingSingleParam,
   ]);
 
+  console.log(
+    "*** Index ***",
+    JSON.stringify(
+      {
+        stepOrder,
+        isEditingSingleParam,
+        currentStep,
+        selectedOption,
+        assistantSettings,
+      },
+      null,
+      2
+    )
+  );
+
   return (
     <>
       <ThemedView style={{ flex: 1, padding: 16 }}>
-        {/* Progress Bar */}
         <ProgressBar
           step={stepOrder.indexOf(currentStep)}
           total={stepOrder.length}
@@ -351,16 +365,19 @@ export default function InitChatScreen() {
                 }}
               >
                 <ThemedText>{message.content}</ThemedText>
-                <ThemedText
-                  style={{
-                    fontSize: 12,
-                    opacity: 0.5,
-                    marginTop: 4,
-                    textAlign: message.role === "user" ? "right" : "left",
-                  }}
-                >
-                  {formatTimestamp(message.timestamp)}
-                </ThemedText>
+                {message.role === "user" && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleChangeStep(
+                        stepOrder[stepOrder.indexOf(currentStep) - 1]
+                      )
+                    }
+                  >
+                    <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
+                      Changer ma réponse
+                    </ThemedText>
+                  </TouchableOpacity>
+                )}
               </ThemedView>
             </View>
           ))}
