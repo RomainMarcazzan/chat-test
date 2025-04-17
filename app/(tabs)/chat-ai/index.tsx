@@ -40,8 +40,6 @@ export default function InitChatScreen() {
     handleValidateCustomName,
     resetAssistantSetup,
     setCurrentStep,
-    isEditingSingleParam,
-    setIsEditingSingleParam,
     updateAssistantSettings,
     messages,
     addMessage,
@@ -111,36 +109,6 @@ export default function InitChatScreen() {
 
   useEffect(() => {
     if (currentStep === "mode") {
-      setSelectedOption(assistantSettings.mode);
-    } else if (currentStep === "gender") {
-      setSelectedOption(assistantSettings.gender);
-    } else if (currentStep === "tone") {
-      setSelectedOption(assistantSettings.tone);
-    } else if (currentStep === "name") {
-      setSelectedOption(
-        assistantSettings.name === "Sam" ? "default" : "custom"
-      );
-    }
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-  }, [currentStep, assistantSettings, setSelectedOption]);
-
-  const userName = "Romain";
-
-  const handlePresentModalPress = () => {
-    resetAssistantSetup();
-    setSelectedOption("personalized");
-    setIsEditingSingleParam(false);
-    bottomSheetModalRef.current?.present();
-  };
-
-  const handleChangeStep = (step: SetupStep) => {
-    setCurrentStep(step);
-    setIsEditingSingleParam(true);
-    bottomSheetModalRef.current?.present();
-  };
-
-  useEffect(() => {
-    if (currentStep === "mode") {
       clearMessages();
       addMessage(
         `Bonjour ${userName} ! Bravo ! Votre compte a bien été créé.`,
@@ -158,7 +126,9 @@ export default function InitChatScreen() {
         "mode"
       );
       addMessage("Que voulez-vous faire ?", "assistant", "mode");
-      handlePresentModalPress();
+      resetAssistantSetup();
+      setSelectedOption("personalized");
+      bottomSheetModalRef.current?.present();
     }
     if (currentStep === "gender") {
       addMessage(
@@ -207,6 +177,14 @@ export default function InitChatScreen() {
     }
   }, [currentStep]);
 
+  const userName = "Romain";
+
+  const handlePresentModalPress = () => {
+    resetAssistantSetup();
+    setSelectedOption("personalized");
+    bottomSheetModalRef.current?.present();
+  };
+
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
       return (
@@ -246,9 +224,6 @@ export default function InitChatScreen() {
               title="Valider mon choix"
               onPress={() => {
                 handleValidateCustomName();
-                if (isEditingSingleParam) {
-                  bottomSheetModalRef.current?.dismiss();
-                }
               }}
               disabled={!customName.trim()}
             />
@@ -309,12 +284,7 @@ export default function InitChatScreen() {
           <CustomButton
             title="Valider mon choix"
             onPress={() => {
-              const wasCustomName =
-                currentStep === "name" && selectedOption === "custom";
               handleValidateChoice();
-              if (isEditingSingleParam && !wasCustomName) {
-                bottomSheetModalRef.current?.dismiss();
-              }
             }}
             disabled={!selectedOption}
           />
@@ -328,7 +298,6 @@ export default function InitChatScreen() {
     selectedOption,
     selectedName,
     assistantSettings,
-    isEditingSingleParam,
   ]);
 
   console.log(
@@ -336,7 +305,6 @@ export default function InitChatScreen() {
     JSON.stringify(
       {
         stepOrder,
-        isEditingSingleParam,
         currentStep,
         selectedOption,
         assistantSettings,
@@ -374,18 +342,6 @@ export default function InitChatScreen() {
                 }}
               >
                 <ThemedText>{message.content}</ThemedText>
-                {message.role === "user" &&
-                  ["gender", "tone", "name"].includes(message.step || "") && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleChangeStep(message.step as SetupStep)
-                      }
-                    >
-                      <ThemedText style={{ color: "#0a7ea4", marginBottom: 4 }}>
-                        Changer ma réponse
-                      </ThemedText>
-                    </TouchableOpacity>
-                  )}
               </ThemedView>
             </View>
           ))}
@@ -435,11 +391,8 @@ export default function InitChatScreen() {
                 title="Valider mon choix"
                 onPress={() => {
                   handleValidateChoice();
-                  if (isEditingSingleParam) {
-                    bottomSheetModalRef.current?.dismiss();
-                  }
                 }}
-                disabled={!selectedOption}
+                //disabled={!selectedOption}
               />
             </View>
           ) : (
