@@ -299,9 +299,8 @@ export default function InitChatScreen() {
     JSON.stringify(
       {
         stepOrder,
-        currentStep,
-        selectedOption,
         assistantSettings,
+        assistantSetup,
       },
       null,
       2
