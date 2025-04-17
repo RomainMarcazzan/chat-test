@@ -28,23 +28,24 @@ type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 export default function InitChatScreen() {
   const {
     assistantSettings,
-    currentStep,
-    selectedOption,
-    setSelectedOption,
-    isCustomName,
-    customName,
-    setCustomName,
-    selectedName,
+    assistantSetup,
     handleOptionSelect,
     handleValidateChoice,
     handleValidateCustomName,
     resetAssistantSetup,
-    setCurrentStep,
     updateAssistantSettings,
     messages,
     addMessage,
     clearMessages,
   } = useChatContext();
+
+  const {
+    currentStep,
+    selectedOption,
+    isCustomName,
+    customName,
+    selectedName,
+  } = assistantSetup;
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const insets = useSafeAreaInsets();
@@ -93,13 +94,6 @@ export default function InitChatScreen() {
 
   const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
 
-  const formatTimestamp = (date: Date) => {
-    return date.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   const AdaptiveTextInput = (props: any) =>
     Platform.OS === "ios" ? (
       <BottomSheetTextInput {...props} />
@@ -126,8 +120,7 @@ export default function InitChatScreen() {
         "mode"
       );
       addMessage("Que voulez-vous faire ?", "assistant", "mode");
-      resetAssistantSetup();
-      setSelectedOption("personalized");
+      handleOptionSelect("personalized");
       bottomSheetModalRef.current?.present();
     }
     if (currentStep === "gender") {
@@ -139,6 +132,8 @@ export default function InitChatScreen() {
         "mode"
       );
       addMessage("D'abord, choisissez votre genre.", "assistant", "gender");
+      handleOptionSelect("feminine");
+      bottomSheetModalRef.current?.present();
     }
     if (currentStep === "tone") {
       addMessage(`${assistantSettings.gender}`, "user", "gender");
@@ -147,6 +142,8 @@ export default function InitChatScreen() {
         "assistant",
         "tone"
       );
+      handleOptionSelect("cordial");
+      bottomSheetModalRef.current?.present();
     }
     if (currentStep === "name") {
       addMessage(`${assistantSettings.tone}`, "user", "tone");
@@ -156,6 +153,8 @@ export default function InitChatScreen() {
         "name"
       );
       addMessage("Souhaitez-vous changer mon nom ?", "assistant", "name");
+      handleOptionSelect("default");
+      bottomSheetModalRef.current?.present();
     }
     if (currentStep === "final") {
       addMessage(
@@ -174,16 +173,11 @@ export default function InitChatScreen() {
         "assistant",
         "final"
       );
+      bottomSheetModalRef.current?.present();
     }
   }, [currentStep]);
 
   const userName = "Romain";
-
-  const handlePresentModalPress = () => {
-    resetAssistantSetup();
-    setSelectedOption("personalized");
-    bottomSheetModalRef.current?.present();
-  };
 
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
@@ -215,7 +209,7 @@ export default function InitChatScreen() {
               color: "#000",
             }}
             value={customName}
-            onChangeText={setCustomName}
+            onChangeText={(text: string) => handleOptionSelect(text)}
             placeholder="Entrez un nom"
             placeholderTextColor="#999"
           />
@@ -350,7 +344,6 @@ export default function InitChatScreen() {
               toneOptions={stepOptions.tone}
               selectedTone={assistantSettings.tone}
               onSelect={(tone) => {
-                setSelectedOption(tone);
                 handleOptionSelect(tone);
                 updateAssistantSettings({ tone });
               }}
@@ -384,7 +377,6 @@ export default function InitChatScreen() {
             paddingBottom: insets.bottom,
           }}
         >
-          {/* Only show options in bottom sheet if not tone step */}
           {currentStep === "tone" ? (
             <View style={{ padding: 16 }}>
               <CustomButton
@@ -392,7 +384,6 @@ export default function InitChatScreen() {
                 onPress={() => {
                   handleValidateChoice();
                 }}
-                //disabled={!selectedOption}
               />
             </View>
           ) : (

@@ -17,6 +17,14 @@ type Message = {
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
+type AssistantSetupState = {
+  currentStep: SetupStep;
+  selectedOption: string | null;
+  isCustomName: boolean;
+  customName: string;
+  selectedName: string;
+};
+
 type ChatContextType = {
   messages: Message[];
   assistantSettings: AssistantSettings;
@@ -27,20 +35,10 @@ type ChatContextType = {
   ) => void;
   clearMessages: () => void;
   updateAssistantSettings: (settings: Partial<AssistantSettings>) => void;
-  currentStep: SetupStep;
-  setCurrentStep: React.Dispatch<React.SetStateAction<SetupStep>>;
-  selectedOption: string | null;
-  setSelectedOption: React.Dispatch<React.SetStateAction<string | null>>;
-  isCustomName: boolean;
-  setIsCustomName: React.Dispatch<React.SetStateAction<boolean>>;
-  customName: string;
-  setCustomName: React.Dispatch<React.SetStateAction<string>>;
-  selectedName: string;
-  setSelectedName: React.Dispatch<React.SetStateAction<string>>;
+  assistantSetup: AssistantSetupState;
   handleOptionSelect: (value: string) => void;
   handleValidateChoice: () => void;
   handleValidateCustomName: () => void;
-  handleCustomNameSubmit: () => void;
   resetAssistantSetup: () => void;
 };
 
@@ -59,11 +57,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     defaultAssistantSettings
   );
 
-  const [currentStep, setCurrentStep] = useState<SetupStep>("mode");
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [isCustomName, setIsCustomName] = useState(false);
-  const [customName, setCustomName] = useState("");
-  const [selectedName, setSelectedName] = useState("");
+  const [assistantSetup, setAssistantSetup] = useState<AssistantSetupState>({
+    currentStep: "mode",
+    selectedOption: null,
+    isCustomName: false,
+    customName: "",
+    selectedName: "",
+  });
 
   const addMessage = (
     content: string,
@@ -92,10 +92,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const handleOptionSelect = (value: string) => {
-    setSelectedOption(value);
+    setAssistantSetup((prev) => ({ ...prev, selectedOption: value }));
   };
 
   const handleValidateChoice = () => {
+    const { currentStep, selectedOption } = assistantSetup;
     if (!selectedOption) return;
     if (currentStep === "mode" && selectedOption === "default") {
       updateAssistantSettings({
@@ -104,63 +105,68 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         tone: "cordial",
         name: "Sam",
       });
-      setCurrentStep("final");
-      setSelectedOption(null);
+      setAssistantSetup((prev) => ({
+        ...prev,
+        currentStep: "final",
+        selectedOption: null,
+      }));
       return;
     }
     if (currentStep === "name") {
       if (selectedOption === "default") {
-        setSelectedName("Sam");
+        setAssistantSetup((prev) => ({ ...prev, selectedName: "Sam" }));
         updateAssistantSettings({ name: "Sam" });
       } else {
-        setIsCustomName(true);
+        setAssistantSetup((prev) => ({ ...prev, isCustomName: true }));
         return;
       }
     } else {
       updateAssistantSettings({ [currentStep]: selectedOption } as any);
     }
+    let nextStep: SetupStep = currentStep;
     switch (currentStep) {
       case "mode":
-        setCurrentStep("gender");
+        nextStep = "gender";
         break;
       case "gender":
-        setCurrentStep("tone");
+        nextStep = "tone";
         break;
       case "tone":
-        setCurrentStep("name");
+        nextStep = "name";
         break;
       case "name":
-        setCurrentStep("final");
+        nextStep = "final";
         break;
     }
-    setSelectedOption(null);
+    setAssistantSetup((prev) => ({
+      ...prev,
+      currentStep: nextStep,
+      selectedOption: null,
+    }));
   };
 
   const handleValidateCustomName = () => {
+    const { customName } = assistantSetup;
     if (customName.trim()) {
       const name = customName.trim();
-      setSelectedName(name);
+      setAssistantSetup((prev) => ({
+        ...prev,
+        selectedName: name,
+        currentStep: "final",
+        isCustomName: false,
+      }));
       updateAssistantSettings({ name });
-      setCurrentStep("final");
-      setIsCustomName(false);
-    }
-  };
-
-  const handleCustomNameSubmit = () => {
-    if (selectedName) {
-      updateAssistantSettings({ name: selectedName });
-      setIsCustomName(false);
-      setCustomName("");
-      setSelectedName("");
     }
   };
 
   const resetAssistantSetup = () => {
-    setCurrentStep("mode");
-    setSelectedOption(null);
-    setIsCustomName(false);
-    setCustomName("");
-    setSelectedName("");
+    setAssistantSetup({
+      currentStep: "mode",
+      selectedOption: null,
+      isCustomName: false,
+      customName: "",
+      selectedName: "",
+    });
   };
 
   return (
@@ -171,20 +177,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         addMessage,
         clearMessages,
         updateAssistantSettings,
-        currentStep,
-        setCurrentStep,
-        selectedOption,
-        setSelectedOption,
-        isCustomName,
-        setIsCustomName,
-        customName,
-        setCustomName,
-        selectedName,
-        setSelectedName,
+        assistantSetup,
         handleOptionSelect,
         handleValidateChoice,
         handleValidateCustomName,
-        handleCustomNameSubmit,
         resetAssistantSetup,
       }}
     >
