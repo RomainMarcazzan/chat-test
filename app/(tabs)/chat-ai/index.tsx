@@ -23,6 +23,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ToneOption, ToneSelection } from "@/components/chat/ToneSelection";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
+import { assistantMessages } from "./assistantMessages";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -103,83 +104,44 @@ export default function InitChatScreen() {
 
   const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
 
+  const userName = "Romain";
+
+  const defaultOptions: Record<string, string | undefined> = {
+    mode: "personalized",
+    gender: "feminine",
+    tone: "cordial",
+    name: "default",
+  };
+
   useEffect(() => {
+    // Prepare params for message templates
+    const params = {
+      userName,
+      assistantSettings,
+      selectedOption,
+      customName,
+    };
+
+    // Clear messages only on first step
     if (currentStep === "mode") {
       clearMessages();
-      addMessage(
-        `Bonjour ${userName} ! Bravo ! Votre compte a bien été créé.`,
-        "assistant",
-        "mode"
-      );
-      addMessage(
-        "Je serai votre assistant personnel. Mon rôle est de vous aider à collecter et organiser vos souvenirs comme jamais auparavant.",
-        "assistant",
-        "mode"
-      );
-      addMessage(
-        "Vous pouvez choisir ma personnalité, ce qui me permettra de vous aider au mieux tout en rendant votre expérience authentique et agréable.",
-        "assistant",
-        "mode"
-      );
-      addMessage("Que voulez-vous faire ?", "assistant", "mode");
-      handleOptionSelect("personalized");
-      bottomSheetModalRef.current?.present();
     }
-    if (currentStep === "gender") {
-      addMessage(
-        `${
-          assistantSettings.mode === "default" ? "Par défaut" : "Personnalisé"
-        }`,
-        "user",
-        "mode"
-      );
-      addMessage("D'abord, choisissez votre genre.", "assistant", "gender");
-      handleOptionSelect("feminine");
+
+    // Add all messages for the current step
+    assistantMessages[currentStep]?.forEach((msg) => {
+      addMessage(msg.content(params), msg.role, currentStep);
+    });
+
+    // Cleaner default option selection and modal presentation
+    if (currentStep in defaultOptions) {
+      if (defaultOptions[currentStep]) {
+        handleOptionSelect(defaultOptions[currentStep]!);
+      }
       bottomSheetModalRef.current?.present();
-    }
-    if (currentStep === "tone") {
-      addMessage(`${assistantSettings.gender}`, "user", "gender");
-      addMessage(
-        "Maintenant, quelle tonalité préférez-vous pour nos échanges?",
-        "assistant",
-        "tone"
-      );
-      handleOptionSelect("cordial");
-      bottomSheetModalRef.current?.present();
-    }
-    if (currentStep === "name") {
-      addMessage(`${assistantSettings.tone}`, "user", "tone");
-      addMessage(
-        "Parfait ! Il ne reste plus qu'à me choisir un nom. Comme ma fonction est la Sauvegarde et l'Archivage de la Mémoire, on m'a temporairement baptisée Sam.",
-        "assistant",
-        "name"
-      );
-      addMessage("Souhaitez-vous changer mon nom ?", "assistant", "name");
-      handleOptionSelect("default");
-      bottomSheetModalRef.current?.present();
-    }
-    if (currentStep === "final") {
-      addMessage(
-        `${
-          selectedOption === "custom"
-            ? customName
-            : assistantSettings.name + " me convient"
-        }`,
-        "user",
-        "name"
-      );
-      addMessage(
-        `Mon nom est donc: ${
-          selectedOption === "custom" ? customName : assistantSettings.name
-        }.${"\n"}Enchanté ${userName} !`,
-        "assistant",
-        "final"
-      );
+    } else if (currentStep === "final") {
       bottomSheetModalRef.current?.present();
     }
   }, [currentStep]);
-
-  const userName = "Romain";
 
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 
-type AssistantSettings = {
+export type AssistantSettings = {
   mode: "default" | "personalized";
   gender: "feminine" | "masculine" | "neutral";
   tone: "formal" | "cordial" | "humorous";
