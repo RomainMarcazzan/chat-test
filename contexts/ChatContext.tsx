@@ -12,6 +12,7 @@ type Message = {
   content: string;
   role: "user" | "assistant";
   timestamp: Date;
+  step?: SetupStep; // Add step property
 };
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
@@ -19,7 +20,11 @@ type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 type ChatContextType = {
   messages: Message[];
   assistantSettings: AssistantSettings;
-  addMessage: (content: string, role: Message["role"]) => void;
+  addMessage: (
+    content: string,
+    role: Message["role"],
+    step?: SetupStep
+  ) => void;
   clearMessages: () => void;
   updateAssistantSettings: (settings: Partial<AssistantSettings>) => void;
   currentStep: SetupStep;
@@ -63,12 +68,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [selectedName, setSelectedName] = useState("");
   const [isEditingSingleParam, setIsEditingSingleParam] = useState(false);
 
-  const addMessage = (content: string, role: Message["role"]) => {
+  const addMessage = (
+    content: string,
+    role: Message["role"],
+    step?: SetupStep
+  ) => {
     const newMessage: Message = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
       content,
       role,
       timestamp: new Date(),
+      step,
     };
     setMessages((prev) => [...prev, newMessage]);
   };
