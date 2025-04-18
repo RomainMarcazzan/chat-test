@@ -13,6 +13,7 @@ type Message = {
   role: "user" | "assistant";
   timestamp: Date;
   step?: SetupStep;
+  isLastMessage?: boolean;
 };
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
@@ -31,7 +32,8 @@ type ChatContextType = {
   addMessage: (
     content: string,
     role: Message["role"],
-    step?: SetupStep
+    step?: SetupStep,
+    isLastMessage?: boolean
   ) => void;
   clearMessages: () => void;
   updateAssistantSettings: (settings: Partial<AssistantSettings>) => void;
@@ -69,7 +71,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const addMessage = (
     content: string,
     role: Message["role"],
-    step?: SetupStep
+    step?: SetupStep,
+    isLastMessage?: boolean
   ) => {
     const newMessage: Message = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
@@ -77,6 +80,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       role,
       timestamp: new Date(),
       step,
+      isLastMessage,
     };
     setMessages((prev) => [...prev, newMessage]);
   };

@@ -155,7 +155,12 @@ export default function InitChatScreen() {
         return true;
       })
       .forEach((msg) => {
-        addMessage(msg.content(params), msg.role, currentStep);
+        addMessage(
+          msg.content(params),
+          msg.role,
+          currentStep,
+          msg.isLastMessage
+        );
       });
 
     // Cleaner default option selection and modal presentation
@@ -324,22 +329,61 @@ export default function InitChatScreen() {
                 alignSelf: message.role === "user" ? "flex-end" : "flex-start",
                 maxWidth: "80%",
                 marginVertical: 4,
+                padding: 8,
               }}
             >
-              <ThemedView
+              <View
                 style={{
                   backgroundColor:
-                    message.role === "user" ? "#007AFF20" : "#00000010",
-                  padding: 12,
-                  borderRadius: 16,
-                  borderBottomRightRadius: message.role === "user" ? 4 : 16,
-                  borderBottomLeftRadius: message.role === "assistant" ? 4 : 16,
+                    message.role === "user" ? "#e6f0ff" : "#f0f0f0",
+                  padding: 10,
+                  position: "relative",
+                  borderRadius: 10,
+                  borderBottomLeftRadius: message.role === "user" ? 10 : 0,
+                  borderBottomRightRadius: message.role === "user" ? 0 : 10,
                 }}
               >
                 <ThemedText>{message.content}</ThemedText>
-              </ThemedView>
+
+                {message.isLastMessage && message.role === "assistant" && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      bottom: -9,
+                      width: 0,
+                      height: 0,
+                      borderTopWidth: 10,
+                      borderTopColor: "#f0f0f0",
+                      borderRightWidth: 15,
+                      borderRightColor: "transparent",
+                      borderBottomWidth: 0,
+                      borderLeftWidth: 0,
+                    }}
+                  />
+                )}
+
+                {message.isLastMessage && message.role === "user" && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      bottom: -9,
+                      width: 0,
+                      height: 0,
+                      borderTopWidth: 10,
+                      borderTopColor: "#e6f0ff",
+                      borderLeftWidth: 15,
+                      borderLeftColor: "transparent",
+                      borderBottomWidth: 0,
+                      borderRightWidth: 0,
+                    }}
+                  />
+                )}
+              </View>
             </View>
           ))}
+
           {currentStep === "tone" && (
             <ToneSelection
               toneOptions={stepOptions.tone}
