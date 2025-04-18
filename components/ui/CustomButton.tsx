@@ -12,7 +12,7 @@ interface CustomButtonProps {
   onPress: () => void;
   disabled?: boolean;
   isLoading?: boolean;
-  variant?: "primary" | "secondary";
+  variant?: "default" | "outline" | "underline";
   style?: ViewStyle;
 }
 
@@ -21,16 +21,19 @@ export function CustomButton({
   onPress,
   disabled = false,
   isLoading = false,
-  variant = "primary",
+  variant = "default",
   style,
 }: CustomButtonProps) {
-  const backgroundColor = useThemeColor(
-    {},
-    disabled ? "icon" : variant === "primary" ? "tint" : "background"
-  );
+  const isUnderline = variant === "underline";
+  const backgroundColor = isUnderline
+    ? "transparent"
+    : useThemeColor(
+        {},
+        disabled ? "icon" : variant === "default" ? "tint" : "background"
+      );
   const textColor = useThemeColor(
     {},
-    variant === "primary" ? "background" : "text"
+    variant === "default" ? "background" : "text"
   );
 
   return (
@@ -40,7 +43,8 @@ export function CustomButton({
       style={[
         styles.button,
         { backgroundColor },
-        variant === "secondary" && styles.secondaryButton,
+        variant === "outline" && styles.secondaryButton,
+        isUnderline && styles.underlineButton,
         disabled && styles.disabledButton,
         style,
       ]}
@@ -52,6 +56,7 @@ export function CustomButton({
           style={[
             styles.text,
             { color: textColor },
+            isUnderline && styles.underlineText,
             disabled && styles.disabledText,
           ]}
         >
@@ -83,5 +88,21 @@ const styles = StyleSheet.create({
   },
   disabledText: {
     opacity: 0.8,
+  },
+  underlineButton: {
+    backgroundColor: "transparent",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    minHeight: undefined,
+    height: undefined,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  underlineText: {
+    textDecorationLine: "underline",
+    fontWeight: "400",
+    fontSize: 14, // smaller font size for underline variant
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
 });

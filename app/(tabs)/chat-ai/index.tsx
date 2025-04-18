@@ -304,6 +304,7 @@ export default function InitChatScreen() {
         stepOrder,
         assistantSettings,
         assistantSetup,
+        messages,
       },
       null,
       2
@@ -323,64 +324,78 @@ export default function InitChatScreen() {
           showsVerticalScrollIndicator={false}
         >
           {messages.map((message) => (
-            <View
-              key={message.id}
-              style={{
-                alignSelf: message.role === "user" ? "flex-end" : "flex-start",
-                maxWidth: "80%",
-                marginVertical: 4,
-                padding: 8,
-              }}
-            >
+            <View key={message.id}>
               <View
                 style={{
-                  backgroundColor:
-                    message.role === "user" ? "#e6f0ff" : "#f0f0f0",
-                  padding: 10,
-                  position: "relative",
-                  borderRadius: 10,
-                  borderBottomLeftRadius: message.role === "user" ? 10 : 0,
-                  borderBottomRightRadius: message.role === "user" ? 0 : 10,
+                  alignSelf:
+                    message.role === "user" ? "flex-end" : "flex-start",
+                  maxWidth: "80%",
+                  marginVertical: 4,
+                  padding: 8,
                 }}
               >
-                <ThemedText>{message.content}</ThemedText>
+                <View
+                  style={{
+                    backgroundColor:
+                      message.role === "user" ? "#e6f0ff" : "#f0f0f0",
+                    padding: 10,
+                    position: "relative",
+                    borderRadius: 10,
+                    borderBottomLeftRadius: message.role === "user" ? 10 : 0,
+                    borderBottomRightRadius: message.role === "user" ? 0 : 10,
+                  }}
+                >
+                  <ThemedText>{message.content}</ThemedText>
+                  {message.isLastMessage && message.role === "assistant" && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        bottom: -9,
+                        width: 0,
+                        height: 0,
+                        borderTopWidth: 10,
+                        borderTopColor: "#f0f0f0",
+                        borderRightWidth: 15,
+                        borderRightColor: "transparent",
+                        borderBottomWidth: 0,
+                        borderLeftWidth: 0,
+                      }}
+                    />
+                  )}
 
-                {message.isLastMessage && message.role === "assistant" && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      bottom: -9,
-                      width: 0,
-                      height: 0,
-                      borderTopWidth: 10,
-                      borderTopColor: "#f0f0f0",
-                      borderRightWidth: 15,
-                      borderRightColor: "transparent",
-                      borderBottomWidth: 0,
-                      borderLeftWidth: 0,
-                    }}
-                  />
-                )}
-
-                {message.isLastMessage && message.role === "user" && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      right: 0,
-                      bottom: -9,
-                      width: 0,
-                      height: 0,
-                      borderTopWidth: 10,
-                      borderTopColor: "#e6f0ff",
-                      borderLeftWidth: 15,
-                      borderLeftColor: "transparent",
-                      borderBottomWidth: 0,
-                      borderRightWidth: 0,
-                    }}
-                  />
-                )}
+                  {message.isLastMessage && message.role === "user" && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        bottom: -9,
+                        width: 0,
+                        height: 0,
+                        borderTopWidth: 10,
+                        borderTopColor: "#e6f0ff",
+                        borderLeftWidth: 15,
+                        borderLeftColor: "transparent",
+                        borderBottomWidth: 0,
+                        borderRightWidth: 0,
+                      }}
+                    />
+                  )}
+                </View>
               </View>
+              {message.role === "user" &&
+                (message.step === "tone" ||
+                  message.step === "name" ||
+                  message.step === "final") && (
+                  <CustomButton
+                    title="Changer ma réponse"
+                    variant="underline"
+                    onPress={() => {}}
+                    style={{
+                      alignSelf: "flex-end",
+                    }}
+                  />
+                )}
             </View>
           ))}
 
