@@ -13,8 +13,11 @@ import { useColorScheme } from "@/hooks/useColorScheme.web";
 
 export type ToneOption = {
   label: string;
+  labelMasculine: string;
+  labelFeminine: string;
   value: "formal" | "cordial" | "humorous";
-  description: string;
+  descriptionMasculine: string;
+  descriptionFeminine: string;
   message: string;
 };
 
@@ -24,11 +27,11 @@ type ToneSelectionProps = {
   onSelect: (tone: "formal" | "cordial" | "humorous") => void;
 };
 
-export const ToneSelection: React.FC<ToneSelectionProps> = ({
-  toneOptions,
-  selectedTone,
-  onSelect,
-}) => {
+export const ToneSelection: React.FC<
+  ToneSelectionProps & {
+    assistantGender?: "masculine" | "feminine" | "neutral";
+  }
+> = ({ toneOptions, selectedTone, onSelect, assistantGender }) => {
   const [carouselIndex, setCarouselIndex] = useState(
     toneOptions.findIndex((t) => t.value === selectedTone)
   );
@@ -164,9 +167,15 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                     marginVertical: 8,
                   }}
                 >
-                  {item.label}
+                  {assistantGender === "feminine"
+                    ? item.labelFeminine
+                    : item.labelMasculine}
                 </ThemedText>
-                <ThemedText style={{}}>{item.description}</ThemedText>
+                <ThemedText style={{}}>
+                  {assistantGender === "feminine"
+                    ? item.descriptionFeminine
+                    : item.descriptionMasculine}
+                </ThemedText>
               </CustomCard>
             </View>
           );

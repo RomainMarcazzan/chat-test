@@ -75,23 +75,37 @@ export default function InitChatScreen() {
     tone: [
       {
         label: "Formelle",
+        labelMasculine: "Formel",
+        labelFeminine: "Formelle",
         value: "formal",
-        description:
+        descriptionMasculine:
+          "Un assistant personnel, toujours prêt à vous aider avec discrétion et efficacité.",
+        descriptionFeminine:
           "Une assistante personnelle, toujours prête à vous aider avec discrétion et efficacité.",
         message:
           "Je suis à votre disposition pour vous fournir toute information ou assistance dont vous pouriez avoir besoin. N'hésitez pas à me solliciter",
       },
       {
         label: "Cordiale",
+        labelMasculine: "Cordial",
+        labelFeminine: "Cordiale",
         value: "cordial",
-        description: "Un ton amical et chaleureux, mais respectueux.",
+        descriptionMasculine:
+          "Un assistant personnel avec un ton amical et chaleureux, mais respectueux.",
+        descriptionFeminine:
+          "Une assistante personnelle avec un ton amicale et chaleureux, mais respectueux.",
         message:
           "Je suis à votre disposition pour vous fournir toute information ou assistance dont vous pouriez avoir besoin. N'hésitez pas à me solliciter",
       },
       {
         label: "Humoristique",
+        labelMasculine: "Humoristique",
+        labelFeminine: "Humoristique",
         value: "humorous",
-        description: "Un ton léger, avec une touche d'humour.",
+        descriptionMasculine:
+          "Un assistant personnel avec un ton léger et une touche d'humour.",
+        descriptionFeminine:
+          "Une assistante personnelle avec un ton léger et une touche d'humour.",
         message:
           "Je suis à votre disposition pour vous fournir toute information ou assistance dont vous pouriez avoir besoin. N'hésitez pas à me solliciter",
       },
@@ -334,6 +348,7 @@ export default function InitChatScreen() {
                 handleOptionSelect(tone);
                 updateAssistantSettings({ tone });
               }}
+              assistantGender={assistantSettings.gender}
             />
           )}
           <View style={{ height: Platform.OS === "ios" ? 400 : 200 }} />
