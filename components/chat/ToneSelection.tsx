@@ -74,15 +74,20 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
         renderItem={({ item }) => {
           const isSelected = selectedTone === item.value;
           return (
-            <View style={{ width: screenWidth - 64, marginHorizontal: 8 }}>
-              <CustomCard selected={isSelected}>
+            <View
+              style={{
+                width: screenWidth - 64,
+                marginHorizontal: 8,
+              }}
+            >
+              <CustomCard selected={isSelected} style={{ flex: 1 }}>
                 <View
                   style={{
                     borderWidth: 1,
                     borderRadius: 10,
                     borderColor: Colors[theme].lightGrey,
                     padding: 6,
-                    height: 200,
+                    minHeight: 250,
                     alignItems: "center",
                     justifyContent: "center",
                     overflow: "hidden",
@@ -147,7 +152,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                           color: "#fff",
                         }}
                       >
-                        {item.description}
+                        {item.message}
                       </ThemedText>
                     </View>
                   </View>
@@ -161,7 +166,7 @@ export const ToneSelection: React.FC<ToneSelectionProps> = ({
                 >
                   {item.label}
                 </ThemedText>
-                <ThemedText style={{}}>{item.message}</ThemedText>
+                <ThemedText style={{}}>{item.description}</ThemedText>
               </CustomCard>
             </View>
           );

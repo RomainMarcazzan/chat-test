@@ -23,7 +23,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ToneOption, ToneSelection } from "@/components/chat/ToneSelection";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
-import { assistantMessages } from "./assistantMessages";
+import { assistantMessages } from "@/utils/assistantMessages";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -128,9 +128,21 @@ export default function InitChatScreen() {
     }
 
     // Add all messages for the current step
-    assistantMessages[currentStep]?.forEach((msg) => {
-      addMessage(msg.content(params), msg.role, currentStep);
-    });
+    assistantMessages[currentStep]
+      ?.filter((msg, idx) => {
+        // For the final step, skip the user message if mode is default
+        if (
+          currentStep === "final" &&
+          msg.role === "user" &&
+          assistantSettings.mode === "default"
+        ) {
+          return false;
+        }
+        return true;
+      })
+      .forEach((msg) => {
+        addMessage(msg.content(params), msg.role, currentStep);
+      });
 
     // Cleaner default option selection and modal presentation
     if (currentStep in defaultOptions) {
@@ -140,6 +152,12 @@ export default function InitChatScreen() {
       bottomSheetModalRef.current?.present();
     } else if (currentStep === "final") {
       bottomSheetModalRef.current?.present();
+    }
+
+    if (scrollViewRef.current) {
+      console.log("scrollViewRef.current");
+
+      scrollViewRef.current.scrollToEnd({ animated: true });
     }
   }, [currentStep]);
 
@@ -280,7 +298,11 @@ export default function InitChatScreen() {
           step={stepOrder.indexOf(currentStep)}
           total={stepOrder.length}
         />
-        <ScrollView ref={scrollViewRef} style={{ flex: 1, borderWidth: 1 }}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
           {messages.map((message) => (
             <View
               key={message.id}
@@ -314,7 +336,7 @@ export default function InitChatScreen() {
               }}
             />
           )}
-          <View style={{ height: 200 }} />
+          <View style={{ height: Platform.OS === "ios" ? 400 : 200 }} />
         </ScrollView>
       </ThemedView>
       <BottomSheetModal

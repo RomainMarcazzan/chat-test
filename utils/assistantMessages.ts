@@ -51,7 +51,18 @@ export const assistantMessages: Record<SetupStep, MessageConfig[]> = {
   ],
   tone: [
     {
-      content: ({ assistantSettings }) => assistantSettings.gender,
+      content: ({ assistantSettings }) => {
+        switch (assistantSettings.gender) {
+          case "masculine":
+            return "Masculin";
+          case "feminine":
+            return "Féminin";
+          case "neutral":
+            return "Neutre";
+          default:
+            return "";
+        }
+      },
       role: "user",
     },
     {
@@ -62,7 +73,22 @@ export const assistantMessages: Record<SetupStep, MessageConfig[]> = {
   ],
   name: [
     {
-      content: ({ assistantSettings }) => assistantSettings.tone,
+      content: ({ assistantSettings }) => {
+        switch (assistantSettings.tone) {
+          case "cordial":
+            return assistantSettings.gender === "feminine"
+              ? "Cordiale"
+              : "Cordial";
+          case "formal":
+            return assistantSettings.gender === "feminine"
+              ? "Formelle"
+              : "Formel";
+          case "humorous":
+            return "Humoristique";
+          default:
+            return "";
+        }
+      },
       role: "user",
     },
     {
