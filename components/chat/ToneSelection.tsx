@@ -38,7 +38,6 @@ export const ToneSelection: React.FC<
   const screenWidth = Dimensions.get("window").width;
   const theme = useColorScheme() ?? "light";
 
-  // Animated shared value for indicator
   const animatedIndex = useSharedValue(carouselIndex);
 
   React.useEffect(() => {

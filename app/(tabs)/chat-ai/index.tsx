@@ -136,7 +136,6 @@ export default function InitChatScreen() {
       return null;
     };
 
-    // Prepare params for message templates
     const params = {
       userName,
       assistantSettings,
@@ -144,15 +143,12 @@ export default function InitChatScreen() {
       customName,
     };
 
-    // Clear messages only on first step
     if (currentStep === "mode") {
       clearMessages();
     }
 
-    // Add all messages for the current step
     assistantMessages[currentStep]
       ?.filter((msg, idx) => {
-        // For the final step, skip the user message if mode is default
         if (
           currentStep === "final" &&
           msg.role === "user" &&
@@ -163,7 +159,6 @@ export default function InitChatScreen() {
         return true;
       })
       .forEach((msg) => {
-        // Use previous step for user messages, currentStep for assistant
         const stepForMessage =
           msg.role === "user"
             ? getPreviousStep(currentStep) ?? currentStep
@@ -176,7 +171,6 @@ export default function InitChatScreen() {
         );
       });
 
-    // Cleaner default option selection and modal presentation
     if (currentStep in defaultOptions) {
       if (defaultOptions[currentStep]) {
         handleOptionSelect(defaultOptions[currentStep]!);
@@ -335,85 +329,138 @@ export default function InitChatScreen() {
           style={{ flex: 1 }}
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((message) => (
-            <View key={message.id}>
-              <View
-                style={{
-                  alignSelf:
-                    message.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "80%",
-                  marginVertical: 4,
-                  padding: 8,
-                }}
-              >
+          {messages.map((message) => {
+            const isAssistant = message.role === "assistant";
+            const isUser = message.role === "user";
+            const showProfileIcon = message.isLastMessage;
+            return (
+              <View key={message.id}>
                 <View
                   style={{
-                    backgroundColor:
-                      message.role === "user" ? "#e6f0ff" : "#f0f0f0",
-                    padding: 10,
-                    position: "relative",
-                    borderRadius: 10,
-                    borderBottomLeftRadius: message.role === "user" ? 10 : 0,
-                    borderBottomRightRadius: message.role === "user" ? 0 : 10,
+                    flexDirection: isUser ? "row-reverse" : "row",
+                    alignItems: "center",
+                    marginVertical: 6,
                   }}
                 >
-                  <ThemedText>{message.content}</ThemedText>
-                  {message.isLastMessage && message.role === "assistant" && (
+                  {showProfileIcon ? (
                     <View
                       style={{
-                        position: "absolute",
-                        left: 0,
-                        bottom: -9,
-                        width: 0,
-                        height: 0,
-                        borderTopWidth: 10,
-                        borderTopColor: "#f0f0f0",
-                        borderRightWidth: 15,
-                        borderRightColor: "transparent",
-                        borderBottomWidth: 0,
-                        borderLeftWidth: 0,
+                        borderRadius: 20,
+                        padding: 10,
+                        backgroundColor: isUser ? "#e6f0ff" : "#f0f0f0",
                       }}
-                    />
+                    >
+                      <View
+                        style={{
+                          alignItems: isUser ? "flex-end" : "flex-start",
+                          justifyContent: "center",
+                          borderWidth: 1,
+                          borderColor: "#0a7ea4",
+                          borderRadius: 4,
+                        }}
+                      >
+                        <AntDesign
+                          name="user"
+                          size={16}
+                          color="#0a7ea4"
+                          style={{ alignSelf: "center" }}
+                        />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={{ width: 35 }} />
                   )}
-
-                  {message.isLastMessage && message.role === "user" && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        right: 0,
-                        bottom: -9,
-                        width: 0,
-                        height: 0,
-                        borderTopWidth: 10,
-                        borderTopColor: "#e6f0ff",
-                        borderLeftWidth: 15,
-                        borderLeftColor: "transparent",
-                        borderBottomWidth: 0,
-                        borderRightWidth: 0,
-                      }}
-                    />
-                  )}
-                </View>
-              </View>
-              {message.role === "user" &&
-                (message.step === "gender" ||
-                  message.step === "tone" ||
-                  message.step === "name") && (
-                  <CustomButton
-                    title="Changer ma réponse"
-                    variant="underline"
-                    onPress={() => {
-                      if (message.step) {
-                        goToStep(message.step);
-                      }
-                    }}
+                  <View
                     style={{
-                      alignSelf: "flex-end",
+                      flex: 1,
+                      alignItems: isUser ? "flex-end" : "flex-start",
                     }}
-                  />
-                )}
-            </View>
-          ))}
+                  >
+                    <View
+                      style={{
+                        padding: 8,
+                        marginLeft: isUser ? 0 : 4,
+                        marginRight: isUser ? 4 : 0,
+                      }}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: isUser ? "#e6f0ff" : "#f0f0f0",
+                          padding: 10,
+                          position: "relative",
+                          borderRadius: 10,
+                          borderBottomLeftRadius: !message.isLastMessage
+                            ? 10
+                            : isUser
+                            ? 10
+                            : 0,
+                          borderBottomRightRadius: !message.isLastMessage
+                            ? 10
+                            : isUser
+                            ? 0
+                            : 10,
+                        }}
+                      >
+                        <ThemedText>{message.content}</ThemedText>
+                        {message.isLastMessage && isAssistant && (
+                          <View
+                            style={{
+                              position: "absolute",
+                              left: 0,
+                              bottom: -9,
+                              width: 0,
+                              height: 0,
+                              borderTopWidth: 10,
+                              borderTopColor: "#f0f0f0",
+                              borderRightWidth: 15,
+                              borderRightColor: "transparent",
+                              borderBottomWidth: 0,
+                              borderLeftWidth: 0,
+                            }}
+                          />
+                        )}
+                        {message.isLastMessage && isUser && (
+                          <View
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              bottom: -9,
+                              width: 0,
+                              height: 0,
+                              borderTopWidth: 10,
+                              borderTopColor: "#e6f0ff",
+                              borderLeftWidth: 15,
+                              borderLeftColor: "transparent",
+                              borderBottomWidth: 0,
+                              borderRightWidth: 0,
+                            }}
+                          />
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                {/* CustomButton for user messages with step */}
+                {isUser &&
+                  (message.step === "gender" ||
+                    message.step === "tone" ||
+                    message.step === "name") && (
+                    <CustomButton
+                      title="Changer ma réponse"
+                      variant="underline"
+                      onPress={() => {
+                        if (message.step) {
+                          goToStep(message.step);
+                        }
+                      }}
+                      style={{
+                        alignSelf: "flex-end",
+                      }}
+                    />
+                  )}
+              </View>
+            );
+          })}
 
           {currentStep === "tone" && (
             <ToneSelection

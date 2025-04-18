@@ -188,11 +188,9 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       selectedOption: null,
       isCustomName: false,
       customName: "",
-      // Optionally reset selectedName if going back before name step
       selectedName:
         step === "name" || step === "final" ? prev.selectedName : "",
     }));
-    // Remove messages after this step
     setMessages((prev) =>
       prev.filter((msg) => {
         if (!msg.step) return true;

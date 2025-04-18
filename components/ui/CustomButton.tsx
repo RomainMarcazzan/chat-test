@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   underlineText: {
     textDecorationLine: "underline",
     fontWeight: "400",
-    fontSize: 14, // smaller font size for underline variant
+    fontSize: 14,
     paddingHorizontal: 0,
     paddingVertical: 0,
   },
