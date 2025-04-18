@@ -47,6 +47,7 @@ export default function InitChatScreen() {
     addMessage,
     clearMessages,
     setCustomName,
+    goToStep,
   } = useChatContext();
 
   const {
@@ -128,6 +129,13 @@ export default function InitChatScreen() {
   };
 
   useEffect(() => {
+    // Helper to get the previous step
+    const getPreviousStep = (step: SetupStep): SetupStep | null => {
+      const idx = stepOrder.indexOf(step);
+      if (idx > 0) return stepOrder[idx - 1];
+      return null;
+    };
+
     // Prepare params for message templates
     const params = {
       userName,
@@ -155,10 +163,15 @@ export default function InitChatScreen() {
         return true;
       })
       .forEach((msg) => {
+        // Use previous step for user messages, currentStep for assistant
+        const stepForMessage =
+          msg.role === "user"
+            ? getPreviousStep(currentStep) ?? currentStep
+            : currentStep;
         addMessage(
           msg.content(params),
           msg.role,
-          currentStep,
+          stepForMessage,
           msg.isLastMessage
         );
       });
@@ -175,7 +188,6 @@ export default function InitChatScreen() {
 
     if (scrollViewRef.current) {
       console.log("scrollViewRef.current");
-
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
   }, [currentStep]);
@@ -384,13 +396,17 @@ export default function InitChatScreen() {
                 </View>
               </View>
               {message.role === "user" &&
-                (message.step === "tone" ||
-                  message.step === "name" ||
-                  message.step === "final") && (
+                (message.step === "gender" ||
+                  message.step === "tone" ||
+                  message.step === "name") && (
                   <CustomButton
                     title="Changer ma réponse"
                     variant="underline"
-                    onPress={() => {}}
+                    onPress={() => {
+                      if (message.step) {
+                        goToStep(message.step);
+                      }
+                    }}
                     style={{
                       alignSelf: "flex-end",
                     }}

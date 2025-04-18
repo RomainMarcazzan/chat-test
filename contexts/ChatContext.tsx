@@ -43,6 +43,7 @@ type ChatContextType = {
   handleValidateCustomName: () => void;
   resetAssistantSetup: () => void;
   setCustomName: (name: string) => void;
+  goToStep: (step: SetupStep) => void;
 };
 
 const defaultAssistantSettings: AssistantSettings = {
@@ -178,6 +179,35 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setAssistantSetup((prev) => ({ ...prev, customName: name }));
   };
 
+  const goToStep = (step: SetupStep) => {
+    console.log("Going to step:", step);
+
+    setAssistantSetup((prev) => ({
+      ...prev,
+      currentStep: step,
+      selectedOption: null,
+      isCustomName: false,
+      customName: "",
+      // Optionally reset selectedName if going back before name step
+      selectedName:
+        step === "name" || step === "final" ? prev.selectedName : "",
+    }));
+    // Remove messages after this step
+    setMessages((prev) =>
+      prev.filter((msg) => {
+        if (!msg.step) return true;
+        const stepOrder: SetupStep[] = [
+          "mode",
+          "gender",
+          "tone",
+          "name",
+          "final",
+        ];
+        return stepOrder.indexOf(msg.step) <= stepOrder.indexOf(step);
+      })
+    );
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -192,6 +222,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         handleValidateCustomName,
         resetAssistantSetup,
         setCustomName,
+        goToStep,
       }}
     >
       {children}
