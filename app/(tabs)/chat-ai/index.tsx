@@ -65,6 +65,7 @@ export default function InitChatScreen() {
   const theme = useColorScheme() ?? "light";
   const scrollViewRef = useRef<ScrollView>(null);
   const { userPhoto, userName } = useUser();
+  console.log("userPhoto", userPhoto);
 
   const stepOptions = {
     mode: [
@@ -333,7 +334,9 @@ export default function InitChatScreen() {
           {messages.map((message) => {
             const isAssistant = message.role === "assistant";
             const isUser = message.role === "user";
-            const showProfileIcon = message.isLastMessage;
+            const showProfileIcon = isUser
+              ? message.isLastMessage && userPhoto
+              : message.isLastMessage && isAssistant;
             return (
               <View key={message.id}>
                 <View
@@ -379,7 +382,7 @@ export default function InitChatScreen() {
                       </View>
                     </View>
                   ) : (
-                    <View style={{ width: 35 }} />
+                    <View style={{ width: isUser ? 0 : 40 }} />
                   )}
                   <View
                     style={{
@@ -451,7 +454,6 @@ export default function InitChatScreen() {
                     </View>
                   </View>
                 </View>
-                {/* CustomButton for user messages with step */}
                 {isUser &&
                   (message.step === "gender" ||
                     message.step === "tone" ||
