@@ -8,7 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Image,
+  StyleSheet,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
@@ -26,6 +26,7 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { assistantMessages } from "@/utils/assistantMessages";
 import { useUser } from "@/contexts/UserPhotoContext";
+import { InitChatMessage } from "@/components/chat/InitChatMessage";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -64,8 +65,7 @@ export default function InitChatScreen() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const scrollViewRef = useRef<ScrollView>(null);
-  const { userPhoto, userName } = useUser();
-  console.log("userPhoto", userPhoto);
+  const { userName } = useUser();
 
   const stepOptions = {
     mode: [
@@ -182,7 +182,6 @@ export default function InitChatScreen() {
     }
 
     if (scrollViewRef.current) {
-      console.log("scrollViewRef.current");
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
   }, [currentStep]);
@@ -190,14 +189,15 @@ export default function InitChatScreen() {
   const renderStepContent = useMemo(() => {
     if (currentStep === "final") {
       return (
-        <View style={{ padding: 16 }}>
-          <View style={{ marginTop: 16 }}>
+        <View style={styles.sheetContainer}>
+          <View style={styles.sheetButtonContainer}>
             <CustomButton
               title="Ok ! Continuons"
               onPress={() => {
                 bottomSheetModalRef.current?.dismiss();
                 resetAssistantSetup();
-                router.navigate("/chat-ai/main-chat");
+                clearMessages();
+                router.replace("/chat-ai/main-chat");
               }}
             />
           </View>
@@ -206,23 +206,16 @@ export default function InitChatScreen() {
     }
     if (currentStep === "name" && isCustomName) {
       return (
-        <View style={{ padding: 16 }}>
+        <View style={styles.sheetContainer}>
           <AdaptiveTextInput
             autoFocus
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 8,
-              marginTop: 16,
-              color: "#000",
-            }}
+            style={styles.customNameInput}
             value={customName}
             onChangeText={(text: string) => setCustomName(text)}
             placeholder="Entrez un nom"
             placeholderTextColor="#999"
           />
-          <View style={{ marginTop: 16 }}>
+          <View style={styles.sheetButtonContainer}>
             <CustomButton
               title="Valider mon choix"
               onPress={() => {
@@ -236,39 +229,20 @@ export default function InitChatScreen() {
       );
     }
     return (
-      <View style={{ padding: 16 }}>
+      <View style={styles.sheetContainer}>
         {stepOptions[currentStep]?.map((option) => (
           <TouchableOpacity
             key={option.value}
             style={[
-              {
-                padding: 8,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: "#ccc",
-                marginTop: 8,
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 12,
-              },
-              selectedOption === option.value && {
-                backgroundColor: "#0a7ea4",
-              },
+              styles.optionButton,
+              selectedOption === option.value && styles.optionButtonSelected,
             ]}
             onPress={() => handleOptionSelect(option.value)}
           >
             <View
               style={[
-                {
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                  borderWidth: 2,
-                  borderColor:
-                    selectedOption === option.value ? "#fff" : "#ccc",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
+                styles.optionRadio,
+                selectedOption === option.value && styles.optionRadioSelected,
               ]}
             >
               {selectedOption === option.value && (
@@ -277,14 +251,16 @@ export default function InitChatScreen() {
             </View>
             <ThemedText
               style={
-                selectedOption === option.value ? { color: "#fff" } : undefined
+                selectedOption === option.value
+                  ? styles.optionTextSelected
+                  : undefined
               }
             >
               {option.label}
             </ThemedText>
           </TouchableOpacity>
         ))}
-        <View style={{ marginTop: 16 }}>
+        <View style={styles.sheetButtonContainer}>
           <CustomButton
             title="Valider mon choix"
             onPress={() => {
@@ -304,176 +280,25 @@ export default function InitChatScreen() {
     assistantSettings,
   ]);
 
-  console.log(
-    "*** Index ***",
-    JSON.stringify(
-      {
-        stepOrder,
-        assistantSettings,
-        assistantSetup,
-        messages,
-      },
-      null,
-      2
-    )
-  );
-
   return (
     <>
-      <ThemedView style={{ flex: 1, padding: 16 }}>
-        {/* Removed the button to take/change photo */}
+      <ThemedView style={styles.container}>
         <ProgressBar
           step={stepOrder.indexOf(currentStep)}
           total={stepOrder.length}
         />
         <ScrollView
           ref={scrollViewRef}
-          style={{ flex: 1 }}
+          style={styles.scrollView}
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((message) => {
-            const isAssistant = message.role === "assistant";
-            const isUser = message.role === "user";
-            const showProfileIcon = isUser
-              ? message.isLastMessage && userPhoto
-              : message.isLastMessage && isAssistant;
-            return (
-              <View key={message.id}>
-                <View
-                  style={{
-                    flexDirection: isUser ? "row-reverse" : "row",
-                    alignItems: "center",
-                    marginVertical: 6,
-                  }}
-                >
-                  {showProfileIcon ? (
-                    <View
-                      style={{
-                        borderRadius: 20,
-                        padding: 10,
-                        backgroundColor: isUser ? "#e6f0ff" : "#f0f0f0",
-                      }}
-                    >
-                      <View
-                        style={{
-                          alignItems: isUser ? "flex-end" : "flex-start",
-                          justifyContent: "center",
-                          borderWidth: 1,
-                          borderColor: "#0a7ea4",
-                          borderRadius: 4,
-                          overflow: "hidden",
-                          width: 20,
-                          height: 20,
-                        }}
-                      >
-                        {isUser && userPhoto ? (
-                          <Image
-                            source={{ uri: userPhoto }}
-                            style={{ width: 32, height: 32, borderRadius: 4 }}
-                          />
-                        ) : (
-                          <AntDesign
-                            name="user"
-                            size={16}
-                            color="#0a7ea4"
-                            style={{ alignSelf: "center" }}
-                          />
-                        )}
-                      </View>
-                    </View>
-                  ) : (
-                    <View style={{ width: isUser ? 0 : 40 }} />
-                  )}
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: isUser ? "flex-end" : "flex-start",
-                    }}
-                  >
-                    <View
-                      style={{
-                        padding: 8,
-                        marginLeft: isUser ? 0 : 4,
-                        marginRight: isUser ? 4 : 0,
-                      }}
-                    >
-                      <View
-                        style={{
-                          backgroundColor: isUser ? "#e6f0ff" : "#f0f0f0",
-                          padding: 10,
-                          position: "relative",
-                          borderRadius: 10,
-                          borderBottomLeftRadius: !message.isLastMessage
-                            ? 10
-                            : isUser
-                            ? 10
-                            : 0,
-                          borderBottomRightRadius: !message.isLastMessage
-                            ? 10
-                            : isUser
-                            ? 0
-                            : 10,
-                        }}
-                      >
-                        <ThemedText>{message.content}</ThemedText>
-                        {message.isLastMessage && isAssistant && (
-                          <View
-                            style={{
-                              position: "absolute",
-                              left: 0,
-                              bottom: -9,
-                              width: 0,
-                              height: 0,
-                              borderTopWidth: 10,
-                              borderTopColor: "#f0f0f0",
-                              borderRightWidth: 15,
-                              borderRightColor: "transparent",
-                              borderBottomWidth: 0,
-                              borderLeftWidth: 0,
-                            }}
-                          />
-                        )}
-                        {message.isLastMessage && isUser && (
-                          <View
-                            style={{
-                              position: "absolute",
-                              right: 0,
-                              bottom: -9,
-                              width: 0,
-                              height: 0,
-                              borderTopWidth: 10,
-                              borderTopColor: "#e6f0ff",
-                              borderLeftWidth: 15,
-                              borderLeftColor: "transparent",
-                              borderBottomWidth: 0,
-                              borderRightWidth: 0,
-                            }}
-                          />
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                </View>
-                {isUser &&
-                  (message.step === "gender" ||
-                    message.step === "tone" ||
-                    message.step === "name") && (
-                    <CustomButton
-                      title="Changer ma réponse"
-                      variant="underline"
-                      onPress={() => {
-                        if (message.step) {
-                          goToStep(message.step);
-                        }
-                      }}
-                      style={{
-                        alignSelf: "flex-end",
-                      }}
-                    />
-                  )}
-              </View>
-            );
-          })}
+          {messages.map((message) => (
+            <InitChatMessage
+              key={message.id}
+              message={message}
+              goToStep={goToStep}
+            />
+          ))}
 
           {currentStep === "tone" && (
             <ToneSelection
@@ -486,7 +311,11 @@ export default function InitChatScreen() {
               assistantGender={assistantSettings.gender}
             />
           )}
-          <View style={{ height: Platform.OS === "ios" ? 400 : 200 }} />
+          <View
+            style={
+              Platform.OS === "ios" ? styles.iosSpacer : styles.androidSpacer
+            }
+          />
         </ScrollView>
       </ThemedView>
       <BottomSheetModal
@@ -516,7 +345,7 @@ export default function InitChatScreen() {
           }}
         >
           {currentStep === "tone" ? (
-            <View style={{ padding: 16 }}>
+            <View style={styles.sheetContainer}>
               <CustomButton
                 title="Valider mon choix"
                 onPress={() => {
@@ -532,3 +361,61 @@ export default function InitChatScreen() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  sheetContainer: {
+    padding: 16,
+  },
+  sheetButtonContainer: {
+    marginTop: 16,
+  },
+  customNameInput: {
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    marginTop: 16,
+    color: "#000",
+  },
+  optionButton: {
+    padding: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  optionButtonSelected: {
+    backgroundColor: "#0a7ea4",
+  },
+  optionRadio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  optionRadioSelected: {
+    borderColor: "#fff",
+  },
+  optionTextSelected: {
+    color: "#fff",
+  },
+  iosSpacer: {
+    height: 400,
+  },
+  androidSpacer: {
+    height: 200,
+  },
+});

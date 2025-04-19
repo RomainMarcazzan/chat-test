@@ -1,4 +1,3 @@
-// app/(tabs)/chat-ai/assistantMessages.ts
 import { AssistantSettings } from "@/contexts/ChatContext";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";

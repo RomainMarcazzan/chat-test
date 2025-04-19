@@ -7,7 +7,7 @@ export type AssistantSettings = {
   name: string;
 };
 
-type Message = {
+export type Message = {
   id: string;
   content: string;
   role: "user" | "assistant";
@@ -16,7 +16,7 @@ type Message = {
   isLastMessage?: boolean;
 };
 
-type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
+export type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
 type AssistantSetupState = {
   currentStep: SetupStep;
@@ -193,6 +193,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }));
     setMessages((prev) =>
       prev.filter((msg) => {
+        console.log("*** msg ***", JSON.stringify(msg, null, 2));
         if (!msg.step) return true;
         const stepOrder: SetupStep[] = [
           "mode",

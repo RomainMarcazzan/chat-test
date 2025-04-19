@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import * as ImagePicker from "expo-image-picker";
 
-// Context type
 export type UserContextType = {
   userPhoto: string | null;
   userName: string;

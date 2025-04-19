@@ -15,7 +15,7 @@ export default function ChatLayout() {
         <Stack.Screen
           name="main-chat"
           options={{
-            title: "Main Chat",
+            title: "Assistant Personnel",
             headerShown: true,
             animation: "none",
           }}
