@@ -17,8 +17,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userName, setUserName] = useState<string>("");
 
   const takePhoto = async () => {
-    console.log("takePhoto called");
-
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       alert("Permission caméra refusée !");

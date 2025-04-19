@@ -180,8 +180,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const goToStep = (step: SetupStep) => {
-    console.log("Going to step:", step);
-
     setAssistantSetup((prev) => ({
       ...prev,
       currentStep: step,
@@ -193,7 +191,6 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }));
     setMessages((prev) =>
       prev.filter((msg) => {
-        console.log("*** msg ***", JSON.stringify(msg, null, 2));
         if (!msg.step) return true;
         const stepOrder: SetupStep[] = [
           "mode",
