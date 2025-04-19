@@ -14,6 +14,7 @@ import { CustomButton } from "@/components/ui/CustomButton";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MainChatMessage } from "@/components/chat/MainChatMessage";
+import { HeaderSettingsButton } from "@/components/chat/HeaderSettingsButton";
 
 export default function MainChatScreen() {
   const { messages, addMessage } = useChatContext();
@@ -49,6 +50,7 @@ export default function MainChatScreen() {
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <ThemedView style={styles.flex}>
+        <HeaderSettingsButton />
         <ScrollView
           ref={scrollViewRef}
           style={styles.flex}

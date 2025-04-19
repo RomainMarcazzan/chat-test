@@ -144,11 +144,13 @@ export function InitChatMessage({ message, goToStep }: InitChatMessageProps) {
             title="Changer ma réponse"
             variant="underline"
             onPress={() => {
+              console.log("Changer ma réponse");
+
               if (message.step) {
                 goToStep(message.step);
               }
             }}
-            style={{ alignSelf: "flex-end" }}
+            style={{ alignSelf: "flex-end", zIndex: 9999 }}
           />
         )}
     </View>

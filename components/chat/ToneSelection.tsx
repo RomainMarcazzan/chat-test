@@ -1,7 +1,7 @@
 import { ThemedText } from "../ThemedText";
 import { CustomCard } from "../ui/CustomCard";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { FlatList, View, Dimensions, Pressable } from "react-native";
+import { FlatList, View, Dimensions } from "react-native";
 import React, { useState } from "react";
 import Animated, {
   useSharedValue,
@@ -10,6 +10,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
+import { Pressable } from "react-native-gesture-handler";
 
 export type ToneOption = {
   label: string;
@@ -76,10 +77,16 @@ export const ToneSelection: React.FC<
         renderItem={({ item }) => {
           const isSelected = selectedTone === item.value;
           return (
-            <View
+            <Pressable
               style={{
                 width: screenWidth - 64,
                 marginHorizontal: 8,
+                backgroundColor: "transparent",
+                zIndex: 9999,
+              }}
+              onPress={() => {
+                console.log("Pressed card!", item.value);
+                onSelect(item.value);
               }}
             >
               <CustomCard selected={isSelected} style={{ flex: 1 }}>
@@ -114,13 +121,12 @@ export const ToneSelection: React.FC<
                     />
                   </View>
 
-                  <Pressable
-                    onPress={() => onSelect(item.value)}
+                  <View
                     style={{
                       position: "absolute",
                       top: 12,
                       left: 12,
-                      zIndex: 2,
+                      zIndex: 99,
                       width: 20,
                       height: 20,
                       borderRadius: 14,
@@ -134,7 +140,7 @@ export const ToneSelection: React.FC<
                     {isSelected && (
                       <AntDesign name="check" size={14} color="#fff" />
                     )}
-                  </Pressable>
+                  </View>
                   <View
                     style={{
                       flex: 1,
@@ -176,7 +182,7 @@ export const ToneSelection: React.FC<
                     : item.descriptionMasculine}
                 </ThemedText>
               </CustomCard>
-            </View>
+            </Pressable>
           );
         }}
       />

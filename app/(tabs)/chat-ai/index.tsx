@@ -126,7 +126,7 @@ export default function InitChatScreen() {
   const defaultOptions: Record<string, string | undefined> = {
     mode: "personalized",
     gender: "feminine",
-    tone: "cordial",
+    tone: "formal",
     name: "default",
   };
 
@@ -280,20 +280,20 @@ export default function InitChatScreen() {
     assistantSettings,
   ]);
 
-  console.log(
-    "*** Init Chat ***",
-    JSON.stringify(
-      {
-        currentStep,
-        isCustomName,
-        customName,
-        selectedName,
-        assistantSettings,
-      },
-      null,
-      2
-    )
-  );
+  // console.log(
+  //   "*** Init Chat ***",
+  //   JSON.stringify(
+  //     {
+  //       currentStep,
+  //       isCustomName,
+  //       customName,
+  //       selectedName,
+  //       assistantSettings,
+  //     },
+  //     null,
+  //     2
+  //   )
+  // );
 
   return (
     <>

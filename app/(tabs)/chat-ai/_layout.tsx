@@ -10,6 +10,7 @@ export default function ChatLayout() {
           options={{
             title: "Assistant Personnel",
             headerShown: true,
+            headerTitleAlign: "center",
           }}
         />
         <Stack.Screen
@@ -18,6 +19,7 @@ export default function ChatLayout() {
             title: "Assistant Personnel",
             headerShown: true,
             animation: "none",
+            headerTitleAlign: "center",
           }}
         />
       </Stack>
