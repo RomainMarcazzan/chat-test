@@ -1,7 +1,7 @@
 import { ThemedText } from "../ThemedText";
 import { CustomCard } from "../ui/CustomCard";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { FlatList, TouchableOpacity, View, Dimensions } from "react-native";
+import { FlatList, View, Dimensions, Pressable } from "react-native";
 import React, { useState } from "react";
 import Animated, {
   useSharedValue,
@@ -114,7 +114,7 @@ export const ToneSelection: React.FC<
                     />
                   </View>
 
-                  <TouchableOpacity
+                  <Pressable
                     onPress={() => onSelect(item.value)}
                     style={{
                       position: "absolute",
@@ -134,7 +134,7 @@ export const ToneSelection: React.FC<
                     {isSelected && (
                       <AntDesign name="check" size={14} color="#fff" />
                     )}
-                  </TouchableOpacity>
+                  </Pressable>
                   <View
                     style={{
                       flex: 1,

@@ -3,7 +3,7 @@ import { View, Image } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { CustomButton } from "@/components/ui/CustomButton";
-import { useUser } from "@/contexts/UserPhotoContext";
+import { useUser } from "@/contexts/UserContext";
 import { Message, SetupStep } from "@/contexts/ChatContext";
 
 export type InitChatMessageProps = {

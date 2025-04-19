@@ -6,9 +6,9 @@ import {
   Platform,
   ScrollView,
   TextInput,
-  TouchableOpacity,
   View,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
@@ -25,7 +25,7 @@ import { ToneOption, ToneSelection } from "@/components/chat/ToneSelection";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { assistantMessages } from "@/utils/assistantMessages";
-import { useUser } from "@/contexts/UserPhotoContext";
+import { useUser } from "@/contexts/UserContext";
 import { InitChatMessage } from "@/components/chat/InitChatMessage";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
@@ -231,7 +231,7 @@ export default function InitChatScreen() {
     return (
       <View style={styles.sheetContainer}>
         {stepOptions[currentStep]?.map((option) => (
-          <TouchableOpacity
+          <Pressable
             key={option.value}
             style={[
               styles.optionButton,
@@ -258,7 +258,7 @@ export default function InitChatScreen() {
             >
               {option.label}
             </ThemedText>
-          </TouchableOpacity>
+          </Pressable>
         ))}
         <View style={styles.sheetButtonContainer}>
           <CustomButton
@@ -279,6 +279,21 @@ export default function InitChatScreen() {
     selectedName,
     assistantSettings,
   ]);
+
+  console.log(
+    "*** Init Chat ***",
+    JSON.stringify(
+      {
+        currentStep,
+        isCustomName,
+        customName,
+        selectedName,
+        assistantSettings,
+      },
+      null,
+      2
+    )
+  );
 
   return (
     <>

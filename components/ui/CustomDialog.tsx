@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  ViewStyle,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, Text, ViewStyle, Pressable } from "react-native";
 import { CustomButton } from "@/components/ui/CustomButton";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -36,13 +30,13 @@ export const CustomDialog: React.FC<CustomDialogProps> = ({
   return (
     <View style={styles.overlay}>
       <View style={[styles.dialog, style]}>
-        <TouchableOpacity
+        <Pressable
           style={styles.closeIcon}
           onPress={onClose ? onClose : onCancel}
           hitSlop={12}
         >
           <AntDesign name="close" size={22} color="#888" />
-        </TouchableOpacity>
+        </Pressable>
         {title && <Text style={styles.title}>{title}</Text>}
         {message && <Text style={styles.message}>{message}</Text>}
         <View style={styles.buttonRow}>

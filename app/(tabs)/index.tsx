@@ -1,4 +1,4 @@
-import { useUser } from "@/contexts/UserPhotoContext";
+import { useUser } from "@/contexts/UserContext";
 import { useState } from "react";
 import {
   View,

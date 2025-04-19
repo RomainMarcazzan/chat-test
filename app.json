@@ -36,6 +36,21 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "fa7a1055-00fb-4f52-82ee-8fdd9d952cbb"
+      }
+    },
+    "owner": "romainmarcazzan",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/fa7a1055-00fb-4f52-82ee-8fdd9d952cbb"
     }
   }
 }

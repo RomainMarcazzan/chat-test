@@ -1,7 +1,7 @@
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
-  TouchableOpacity,
   ViewStyle,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
@@ -37,7 +37,7 @@ export function CustomButton({
   );
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       disabled={disabled || isLoading}
       style={[
@@ -63,7 +63,7 @@ export function CustomButton({
           {title}
         </ThemedText>
       )}
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

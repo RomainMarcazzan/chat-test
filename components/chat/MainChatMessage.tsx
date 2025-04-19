@@ -2,7 +2,7 @@ import React from "react";
 import { View, Image } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useUser } from "@/contexts/UserPhotoContext";
+import { useUser } from "@/contexts/UserContext";
 import { Message } from "@/contexts/ChatContext";
 
 export type MainChatMessageProps = {
