@@ -130,7 +130,6 @@ export default function InitChatScreen() {
   };
 
   useEffect(() => {
-    // Helper to get the previous step
     const getPreviousStep = (step: SetupStep): SetupStep | null => {
       const idx = stepOrder.indexOf(step);
       if (idx > 0) return stepOrder[idx - 1];
