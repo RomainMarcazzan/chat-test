@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
@@ -24,6 +25,7 @@ import { ToneOption, ToneSelection } from "@/components/chat/ToneSelection";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { assistantMessages } from "@/utils/assistantMessages";
+import { useUser } from "@/contexts/UserPhotoContext";
 
 type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
@@ -62,6 +64,7 @@ export default function InitChatScreen() {
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? "light";
   const scrollViewRef = useRef<ScrollView>(null);
+  const { userPhoto, userName } = useUser();
 
   const stepOptions = {
     mode: [
@@ -118,8 +121,6 @@ export default function InitChatScreen() {
   };
 
   const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
-
-  const userName = "Romain";
 
   const defaultOptions: Record<string, string | undefined> = {
     mode: "personalized",
@@ -320,6 +321,7 @@ export default function InitChatScreen() {
   return (
     <>
       <ThemedView style={{ flex: 1, padding: 16 }}>
+        {/* Removed the button to take/change photo */}
         <ProgressBar
           step={stepOrder.indexOf(currentStep)}
           total={stepOrder.length}
@@ -357,14 +359,24 @@ export default function InitChatScreen() {
                           borderWidth: 1,
                           borderColor: "#0a7ea4",
                           borderRadius: 4,
+                          overflow: "hidden",
+                          width: 20,
+                          height: 20,
                         }}
                       >
-                        <AntDesign
-                          name="user"
-                          size={16}
-                          color="#0a7ea4"
-                          style={{ alignSelf: "center" }}
-                        />
+                        {isUser && userPhoto ? (
+                          <Image
+                            source={{ uri: userPhoto }}
+                            style={{ width: 32, height: 32, borderRadius: 4 }}
+                          />
+                        ) : (
+                          <AntDesign
+                            name="user"
+                            size={16}
+                            color="#0a7ea4"
+                            style={{ alignSelf: "center" }}
+                          />
+                        )}
                       </View>
                     </View>
                   ) : (

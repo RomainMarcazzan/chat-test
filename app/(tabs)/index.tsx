@@ -1,74 +1,141 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useUser } from "@/contexts/UserPhotoContext";
+import { useState } from "react";
+import {
+  View,
+  TextInput,
+  Image,
+  StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
+} from "react-native";
+import { CustomButton } from "@/components/ui/CustomButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { useRouter } from "expo-router";
+import { CustomDialog } from "@/components/ui/CustomDialog";
 
 export default function HomeScreen() {
+  const { userPhoto, userName, setUserName, takePhoto, pickImage } = useUser();
+  const [input, setInput] = useState(userName);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [photoDialogVisible, setPhotoDialogVisible] = useState(false);
+  const router = useRouter();
+
+  const handleValidate = () => {
+    setUserName(input);
+    setDialogVisible(true);
+  };
+
+  const handleDialogConfirm = () => {
+    setDialogVisible(false);
+    router.push("/chat-ai");
+  };
+
+  const handleDialogCancel = () => {
+    setDialogVisible(false);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ThemedView style={styles.container}>
+        <ThemedText type="title">Profil utilisateur</ThemedText>
+        <View style={styles.avatarContainer}>
+          {userPhoto ? (
+            <Image source={{ uri: userPhoto }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, styles.avatarPlaceholder]} />
+          )}
+          <CustomButton
+            title={userPhoto ? "Changer la photo" : "Ajouter une photo"}
+            onPress={() => setPhotoDialogVisible(true)}
+            style={{ marginTop: 12 }}
+            variant="outline"
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <ThemedText type="subtitle">Nom d'utilisateur</ThemedText>
+          <TextInput
+            style={styles.input}
+            placeholder="Entrez votre nom"
+            value={input}
+            onChangeText={setInput}
+            returnKeyType="done"
+          />
+          <CustomButton
+            title="Valider"
+            onPress={handleValidate}
+            style={{ marginTop: 12 }}
+            disabled={!input.trim()}
+          />
+        </View>
+        <CustomDialog
+          visible={dialogVisible}
+          title="Profil enregistré"
+          message="Voulez-vous accéder à l’Assistant Personnel ?"
+          onConfirm={handleDialogConfirm}
+          onCancel={handleDialogCancel}
+          onClose={handleDialogCancel}
+          confirmText="Oui"
+          cancelText="Non"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+        <CustomDialog
+          visible={photoDialogVisible}
+          title="Photo de profil"
+          message="Choisissez une option pour votre photo de profil :"
+          onConfirm={async () => {
+            setPhotoDialogVisible(false);
+            await takePhoto();
+          }}
+          onCancel={async () => {
+            setPhotoDialogVisible(false);
+            await pickImage();
+          }}
+          onClose={() => setPhotoDialogVisible(false)}
+          confirmText="Photo"
+          cancelText="Galerie"
+        />
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    gap: 32,
+  },
+  avatarContainer: {
+    alignItems: "center",
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "#e6f0ff",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  avatarPlaceholder: {
+    borderWidth: 2,
+    borderColor: "#0a7ea4",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  inputContainer: {
+    width: "100%",
+    gap: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: "#fff",
   },
 });
