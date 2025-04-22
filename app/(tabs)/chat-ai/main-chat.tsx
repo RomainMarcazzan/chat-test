@@ -17,6 +17,7 @@ import { MainChatMessage } from "@/components/chat/MainChatMessage";
 import { HeaderSettingsButton } from "@/components/chat/HeaderSettingsButton";
 import { useUser } from "@/contexts/UserContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { Colors } from "@/constants/Colors";
 
 export default function MainChatScreen() {
   const { messages, addMessage } = useChatContext();
@@ -70,7 +71,12 @@ export default function MainChatScreen() {
             <MainChatMessage key={message.id} message={message} />
           ))}
           {isLoading && (
-            <ThemedView style={styles.loadingMessage}>
+            <ThemedView
+              style={[
+                styles.loadingMessage,
+                { backgroundColor: Colors.light.lightGrey },
+              ]}
+            >
               <ActivityIndicator size="small" />
             </ThemedView>
           )}
@@ -79,21 +85,23 @@ export default function MainChatScreen() {
         <ThemedView
           style={[
             styles.inputContainer,
-            { backgroundColor, paddingBottom: insets.bottom || 16 },
+            {
+              backgroundColor,
+              paddingBottom: insets.bottom || 16,
+              borderColor: Colors.light.lightGrey,
+            },
           ]}
         >
           <View style={styles.inputRow}>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.textInput}
-                value={inputText}
-                onChangeText={setInputText}
-                placeholder="Écrivez un message..."
-                placeholderTextColor="#00000050"
-                multiline
-                editable={!isLoading}
-              />
-            </View>
+            <TextInput
+              style={styles.textInput}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholder="Écrivez un message..."
+              placeholderTextColor={Colors.light.tabIconDefault}
+              multiline
+              editable={!isLoading}
+            />
             <CustomButton
               title="Envoyer"
               onPress={handleSend}
@@ -103,7 +111,7 @@ export default function MainChatScreen() {
             <IconButton
               onPress={handlePickVideo}
               icon={<AntDesign name="videocamera" size={24} color="#0a7ea4" />}
-              style={{ marginLeft: 8, paddingHorizontal: 8 }}
+              style={{ paddingHorizontal: 4 }}
               disabled={isLoading}
             />
           </View>
@@ -121,25 +129,21 @@ const styles = StyleSheet.create({
   },
   loadingMessage: {
     alignSelf: "flex-start",
-    backgroundColor: "#00000010",
     padding: 12,
     borderRadius: 16,
     borderBottomLeftRadius: 4,
   },
   inputContainer: {
     borderTopWidth: 1,
-    borderTopColor: "#00000020",
     padding: 16,
   },
   inputRow: {
     flexDirection: "row",
-    gap: 8,
-    alignItems: "flex-end",
-  },
-  inputWrapper: {
-    flex: 1,
+    gap: 6,
+    alignItems: "center",
   },
   textInput: {
+    flex: 1,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,

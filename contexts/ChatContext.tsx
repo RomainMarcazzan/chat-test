@@ -18,6 +18,13 @@ export type Message = {
 };
 
 export type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
+export const stepOrder: SetupStep[] = [
+  "mode",
+  "gender",
+  "tone",
+  "name",
+  "final",
+];
 
 type AssistantSetupState = {
   currentStep: SetupStep;
@@ -196,13 +203,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setMessages((prev) =>
       prev.filter((msg) => {
         if (!msg.step) return true;
-        const stepOrder: SetupStep[] = [
-          "mode",
-          "gender",
-          "tone",
-          "name",
-          "final",
-        ];
+
         return stepOrder.indexOf(msg.step) <= stepOrder.indexOf(step);
       })
     );

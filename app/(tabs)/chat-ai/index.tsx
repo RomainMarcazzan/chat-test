@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
-import { useChatContext } from "@/contexts/ChatContext";
+import { SetupStep, stepOrder, useChatContext } from "@/contexts/ChatContext";
 import {
   BottomSheetModal,
   BottomSheetScrollView,
@@ -27,8 +27,6 @@ import { useColorScheme } from "@/hooks/useColorScheme.web";
 import { assistantMessages } from "@/utils/assistantMessages";
 import { useUser } from "@/contexts/UserContext";
 import { InitChatMessage } from "@/components/chat/InitChatMessage";
-
-type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
 
 const AdaptiveTextInput = (props: any) =>
   Platform.OS === "ios" ? (
@@ -121,8 +119,6 @@ export default function InitChatScreen() {
     ],
   };
 
-  const stepOrder: SetupStep[] = ["mode", "gender", "tone", "name", "final"];
-
   const defaultOptions: Record<string, string | undefined> = {
     mode: "personalized",
     gender: "feminine",
@@ -149,7 +145,7 @@ export default function InitChatScreen() {
     }
 
     assistantMessages[currentStep]
-      ?.filter((msg, idx) => {
+      ?.filter((msg) => {
         if (
           currentStep === "final" &&
           msg.role === "user" &&
