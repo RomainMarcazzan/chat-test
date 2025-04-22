@@ -4,7 +4,7 @@ import { ThemedText } from "@/components/ThemedText";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useUser } from "@/contexts/UserContext";
 import { Message } from "@/contexts/ChatContext";
-import { Video } from "expo-av";
+import { VideoView, useVideoPlayer } from "expo-video";
 
 export type MainChatMessageProps = {
   message: Message;
@@ -15,6 +15,7 @@ export function MainChatMessage({ message }: MainChatMessageProps) {
   const isAssistant = message.role === "assistant";
   const isUser = message.role === "user";
   const showProfileIcon = isUser ? userPhoto : isAssistant;
+  const player = useVideoPlayer(message.videoUri || null);
 
   return (
     <View>
@@ -87,14 +88,10 @@ export function MainChatMessage({ message }: MainChatMessageProps) {
               }}
             >
               {message.videoUri ? (
-                <Video
-                  source={{ uri: message.videoUri }}
-                  rate={1.0}
-                  volume={1.0}
-                  isMuted={false}
-                  resizeMode={"contain" as any}
-                  shouldPlay={false}
-                  useNativeControls
+                <VideoView
+                  player={player}
+                  contentFit="contain"
+                  nativeControls
                   style={{
                     width: 220,
                     height: 160,
