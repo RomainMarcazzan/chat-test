@@ -4,6 +4,7 @@ import { ThemedText } from "@/components/ThemedText";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useUser } from "@/contexts/UserContext";
 import { Message } from "@/contexts/ChatContext";
+import { Video } from "expo-av";
 
 export type MainChatMessageProps = {
   message: Message;
@@ -85,6 +86,23 @@ export function MainChatMessage({ message }: MainChatMessageProps) {
                 borderBottomRightRadius: 10,
               }}
             >
+              {message.videoUri ? (
+                <Video
+                  source={{ uri: message.videoUri }}
+                  rate={1.0}
+                  volume={1.0}
+                  isMuted={false}
+                  resizeMode={"contain" as any}
+                  shouldPlay={false}
+                  useNativeControls
+                  style={{
+                    width: 220,
+                    height: 160,
+                    borderRadius: 8,
+                    marginBottom: 8,
+                  }}
+                />
+              ) : null}
               <ThemedText>{message.content}</ThemedText>
             </View>
           </View>

@@ -10,14 +10,17 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
-import { CustomButton } from "@/components/ui/CustomButton";
+import { CustomButton, IconButton } from "@/components/ui/CustomButton";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MainChatMessage } from "@/components/chat/MainChatMessage";
 import { HeaderSettingsButton } from "@/components/chat/HeaderSettingsButton";
+import { useUser } from "@/contexts/UserContext";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function MainChatScreen() {
   const { messages, addMessage } = useChatContext();
+  const { pickVideo } = useUser();
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -36,6 +39,13 @@ export default function MainChatScreen() {
       }, 1000);
     }
   }, [inputText, addMessage]);
+
+  const handlePickVideo = async () => {
+    const uri = await pickVideo();
+    if (uri) {
+      addMessage("Vidéo envoyée", "user", undefined, false, uri);
+    }
+  };
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -89,6 +99,12 @@ export default function MainChatScreen() {
               onPress={handleSend}
               disabled={!inputText.trim() || isLoading}
               isLoading={isLoading}
+            />
+            <IconButton
+              onPress={handlePickVideo}
+              icon={<AntDesign name="videocamera" size={24} color="#0a7ea4" />}
+              style={{ marginLeft: 8, paddingHorizontal: 8 }}
+              disabled={isLoading}
             />
           </View>
         </ThemedView>

@@ -14,6 +14,7 @@ export type Message = {
   timestamp: Date;
   step?: SetupStep;
   isLastMessage?: boolean;
+  videoUri?: string;
 };
 
 export type SetupStep = "mode" | "gender" | "tone" | "name" | "final";
@@ -33,7 +34,8 @@ type ChatContextType = {
     content: string,
     role: Message["role"],
     step?: SetupStep,
-    isLastMessage?: boolean
+    isLastMessage?: boolean,
+    videoUri?: string
   ) => void;
   clearMessages: () => void;
   updateAssistantSettings: (settings: Partial<AssistantSettings>) => void;
@@ -73,7 +75,8 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     content: string,
     role: Message["role"],
     step?: SetupStep,
-    isLastMessage?: boolean
+    isLastMessage?: boolean,
+    videoUri?: string
   ) => {
     const newMessage: Message = {
       id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
@@ -82,6 +85,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       timestamp: new Date(),
       step,
       isLastMessage,
+      videoUri,
     };
     setMessages((prev) => [...prev, newMessage]);
   };

@@ -3,6 +3,7 @@ import {
   Pressable,
   StyleSheet,
   ViewStyle,
+  TouchableOpacity,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -64,6 +65,29 @@ export function CustomButton({
         </ThemedText>
       )}
     </Pressable>
+  );
+}
+
+export function IconButton({
+  onPress,
+  icon,
+  style,
+  disabled,
+}: {
+  onPress: () => void;
+  icon: React.ReactNode;
+  style?: ViewStyle;
+  disabled?: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.button, style]}
+      disabled={disabled}
+      activeOpacity={0.7}
+    >
+      {icon}
+    </TouchableOpacity>
   );
 }
 

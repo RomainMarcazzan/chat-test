@@ -7,6 +7,7 @@ export type UserContextType = {
   setUserName: (name: string) => void;
   takePhoto: () => Promise<void>;
   pickImage: () => Promise<void>;
+  pickVideo: () => Promise<string | null>;
   clearPhoto: () => void;
 };
 
@@ -50,6 +51,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const pickVideo = async (): Promise<string | null> => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission galerie refusée !");
+      return null;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["videos"],
+      allowsEditing: false,
+      quality: 1,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      return result.assets[0].uri;
+    }
+    return null;
+  };
+
   const clearPhoto = () => setUserPhoto(null);
 
   return (
@@ -60,6 +78,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setUserName,
         takePhoto,
         pickImage,
+        pickVideo,
         clearPhoto,
       }}
     >
