@@ -119,13 +119,6 @@ export default function InitChatScreen() {
     ],
   };
 
-  const defaultOptions: Record<string, string | undefined> = {
-    mode: "personalized",
-    gender: "feminine",
-    tone: "formal",
-    name: "default",
-  };
-
   useEffect(() => {
     const getPreviousStep = (step: SetupStep): SetupStep | null => {
       const idx = stepOrder.indexOf(step);
@@ -168,9 +161,11 @@ export default function InitChatScreen() {
         );
       });
 
-    if (currentStep in defaultOptions) {
-      if (defaultOptions[currentStep]) {
-        handleOptionSelect(defaultOptions[currentStep]!);
+    if (currentStep in assistantSettings) {
+      const value =
+        assistantSettings[currentStep as keyof typeof assistantSettings];
+      if (value) {
+        handleOptionSelect(value);
       }
       bottomSheetModalRef.current?.present();
     } else if (currentStep === "final") {
@@ -276,20 +271,17 @@ export default function InitChatScreen() {
     assistantSettings,
   ]);
 
-  // console.log(
-  //   "*** Init Chat ***",
-  //   JSON.stringify(
-  //     {
-  //       currentStep,
-  //       isCustomName,
-  //       customName,
-  //       selectedName,
-  //       assistantSettings,
-  //     },
-  //     null,
-  //     2
-  //   )
-  // );
+  console.log(
+    "*** Init Chat ***",
+    JSON.stringify(
+      {
+        assistantSettings,
+        assistantSetup,
+      },
+      null,
+      2
+    )
+  );
 
   return (
     <>
