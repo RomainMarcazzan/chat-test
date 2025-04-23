@@ -120,10 +120,10 @@ export default function InitChatScreen() {
   };
 
   useEffect(() => {
-    const getPreviousStep = (step: SetupStep): SetupStep | null => {
+    const getPreviousStep = (step: SetupStep): SetupStep | undefined => {
       const idx = stepOrder.indexOf(step);
       if (idx > 0) return stepOrder[idx - 1];
-      return null;
+      return undefined;
     };
 
     const params = {
@@ -150,15 +150,24 @@ export default function InitChatScreen() {
       })
       .forEach((msg) => {
         const stepForMessage =
-          msg.role === "user"
-            ? getPreviousStep(currentStep) ?? currentStep
+          msg.role === "user" && getPreviousStep(currentStep)
+            ? getPreviousStep(currentStep)
             : currentStep;
-        addMessage(
-          msg.content(params),
-          msg.role,
-          stepForMessage,
-          msg.isLastMessage
+
+        const alreadyExists = messages.some(
+          (m) =>
+            m.content === msg.content(params) &&
+            m.role === msg.role &&
+            m.step === stepForMessage
         );
+        if (!alreadyExists) {
+          addMessage(
+            msg.content(params),
+            msg.role,
+            stepForMessage,
+            msg.isLastMessage
+          );
+        }
       });
 
     if (currentStep in assistantSettings) {
@@ -277,6 +286,7 @@ export default function InitChatScreen() {
       {
         assistantSettings,
         assistantSetup,
+        messages,
       },
       null,
       2

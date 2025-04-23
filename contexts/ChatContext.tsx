@@ -102,10 +102,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateAssistantSettings = (settings: Partial<AssistantSettings>) => {
-    setAssistantSettings((prev) => {
-      const updated = { ...prev, ...settings };
-      return updated;
-    });
+    setAssistantSettings((prev) => ({ ...prev, ...settings }));
   };
 
   const handleOptionSelect = (value: string) => {
@@ -138,7 +135,23 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         return;
       }
     } else {
-      updateAssistantSettings({ [currentStep]: selectedOption } as any);
+      switch (currentStep) {
+        case "mode":
+          updateAssistantSettings({
+            mode: selectedOption as AssistantSettings["mode"],
+          });
+          break;
+        case "gender":
+          updateAssistantSettings({
+            gender: selectedOption as AssistantSettings["gender"],
+          });
+          break;
+        case "tone":
+          updateAssistantSettings({
+            tone: selectedOption as AssistantSettings["tone"],
+          });
+          break;
+      }
     }
     let nextStep: SetupStep = currentStep;
     switch (currentStep) {
