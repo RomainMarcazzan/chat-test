@@ -9,10 +9,17 @@ import {
   View,
   StyleSheet,
   Pressable,
+  TextInputProps,
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRef, useMemo, useEffect } from "react";
-import { SetupStep, stepOrder, useChatContext } from "@/contexts/ChatContext";
+import {
+  AssistantSettings,
+  Message,
+  SetupStep,
+  stepOrder,
+  useChatContext,
+} from "@/contexts/ChatContext";
 import {
   BottomSheetModal,
   BottomSheetScrollView,
@@ -28,7 +35,7 @@ import { assistantMessages } from "@/utils/assistantMessages";
 import { useUser } from "@/contexts/UserContext";
 import { InitChatMessage } from "@/components/chat/InitChatMessage";
 
-const AdaptiveTextInput = (props: any) =>
+const AdaptiveTextInput = (props: TextInputProps) =>
   Platform.OS === "ios" ? (
     <BottomSheetTextInput {...props} />
   ) : (
@@ -135,12 +142,18 @@ export default function InitChatScreen() {
     addMessage,
   }: {
     currentStep: SetupStep;
-    assistantSettings: any;
+    assistantSettings: AssistantSettings;
     selectedOption: string | null;
     customName: string;
     userName: string;
-    messages: any[];
-    addMessage: any;
+    messages: Message[];
+    addMessage: (
+      content: string,
+      role: Message["role"],
+      step?: SetupStep,
+      isLastMessage?: boolean,
+      videoUri?: string
+    ) => void;
   }) => {
     const params = { userName, assistantSettings, selectedOption, customName };
     assistantMessages[currentStep]
@@ -184,8 +197,8 @@ export default function InitChatScreen() {
     bottomSheetModalRef,
   }: {
     currentStep: SetupStep;
-    assistantSettings: any;
-    handleOptionSelect: any;
+    assistantSettings: AssistantSettings;
+    handleOptionSelect: (value: string) => void;
     bottomSheetModalRef: React.RefObject<BottomSheetModal>;
   }) => {
     if (currentStep in assistantSettings) {
