@@ -119,24 +119,30 @@ export default function InitChatScreen() {
     ],
   };
 
-  useEffect(() => {
-    const getPreviousStep = (step: SetupStep): SetupStep | undefined => {
-      const idx = stepOrder.indexOf(step);
-      if (idx > 0) return stepOrder[idx - 1];
-      return undefined;
-    };
+  const getPreviousStep = (step: SetupStep): SetupStep | undefined => {
+    const idx = stepOrder.indexOf(step);
+    if (idx > 0) return stepOrder[idx - 1];
+    return undefined;
+  };
 
-    const params = {
-      userName,
-      assistantSettings,
-      selectedOption,
-      customName,
-    };
-
-    if (currentStep === "mode") {
-      clearMessages();
-    }
-
+  const addStepMessages = ({
+    currentStep,
+    assistantSettings,
+    selectedOption,
+    customName,
+    userName,
+    messages,
+    addMessage,
+  }: {
+    currentStep: SetupStep;
+    assistantSettings: any;
+    selectedOption: string | null;
+    customName: string;
+    userName: string;
+    messages: any[];
+    addMessage: any;
+  }) => {
+    const params = { userName, assistantSettings, selectedOption, customName };
     assistantMessages[currentStep]
       ?.filter((msg) => {
         if (
@@ -169,7 +175,19 @@ export default function InitChatScreen() {
           );
         }
       });
+  };
 
+  const openBottomSheetIfNeeded = ({
+    currentStep,
+    assistantSettings,
+    handleOptionSelect,
+    bottomSheetModalRef,
+  }: {
+    currentStep: SetupStep;
+    assistantSettings: any;
+    handleOptionSelect: any;
+    bottomSheetModalRef: React.RefObject<BottomSheetModal>;
+  }) => {
     if (currentStep in assistantSettings) {
       const value =
         assistantSettings[currentStep as keyof typeof assistantSettings];
@@ -180,6 +198,29 @@ export default function InitChatScreen() {
     } else if (currentStep === "final") {
       bottomSheetModalRef.current?.present();
     }
+  };
+
+  useEffect(() => {
+    if (currentStep === "mode") {
+      clearMessages();
+    }
+
+    addStepMessages({
+      currentStep,
+      assistantSettings,
+      selectedOption,
+      customName,
+      userName,
+      messages,
+      addMessage,
+    });
+
+    openBottomSheetIfNeeded({
+      currentStep,
+      assistantSettings,
+      handleOptionSelect,
+      bottomSheetModalRef,
+    });
 
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: true });
