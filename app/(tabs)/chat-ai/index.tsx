@@ -340,7 +340,7 @@ export default function InitChatScreen() {
       {
         assistantSettings,
         assistantSetup,
-        messages,
+        //messages,
       },
       null,
       2
