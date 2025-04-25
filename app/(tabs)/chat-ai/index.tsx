@@ -240,7 +240,7 @@ export default function InitChatScreen() {
     }
   }, [currentStep]);
 
-  const renderStepContent = useMemo(() => {
+  const renderStepContentBottomSheet = useMemo(() => {
     if (currentStep === "final") {
       return (
         <View style={styles.sheetContainer}>
@@ -421,7 +421,7 @@ export default function InitChatScreen() {
               />
             </View>
           ) : (
-            renderStepContent
+            renderStepContentBottomSheet
           )}
         </BottomSheetScrollView>
       </BottomSheetModal>

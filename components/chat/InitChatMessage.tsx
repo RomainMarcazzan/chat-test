@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Image } from "react-native";
+import { Image, View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
-import AntDesign from "@expo/vector-icons/AntDesign";
 import { CustomButton } from "@/components/ui/CustomButton";
 import { useUser } from "@/contexts/UserContext";
 import { Message, SetupStep } from "@/contexts/ChatContext";
+import { AntDesign } from "@expo/vector-icons";
 
 export type InitChatMessageProps = {
   message: Message;
@@ -31,40 +31,61 @@ export function InitChatMessage({ message, goToStep }: InitChatMessageProps) {
         {showProfileIcon ? (
           <View
             style={{
-              borderRadius: 20,
-              padding: 10,
+              borderRadius: 15,
               backgroundColor: isUser ? "#e6f0ff" : "#f0f0f0",
             }}
           >
-            <View
-              style={{
-                alignItems: isUser ? "flex-end" : "flex-start",
-                justifyContent: "center",
-                borderWidth: 1,
-                borderColor: "#0a7ea4",
-                borderRadius: 4,
-                overflow: "hidden",
-                width: 20,
-                height: 20,
-              }}
-            >
-              {isUser && userPhoto ? (
+            {isUser && userPhoto ? (
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                  overflow: "hidden",
+                }}
+              >
                 <Image
                   source={{ uri: userPhoto }}
-                  style={{ width: 32, height: 32, borderRadius: 4 }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
                 />
-              ) : (
-                <AntDesign
-                  name="user"
-                  size={16}
-                  color="#0a7ea4"
-                  style={{ alignSelf: "center" }}
-                />
-              )}
-            </View>
+              </View>
+            ) : (
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                  overflow: "hidden",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "#0a7ea4",
+                    overflow: "hidden",
+                    borderRadius: 4,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: 2,
+                  }}
+                >
+                  <AntDesign
+                    name="user"
+                    size={12}
+                    color="#0a7ea4"
+                    style={{ alignSelf: "center" }}
+                  />
+                </View>
+              </View>
+            )}
           </View>
         ) : (
-          <View style={{ width: isUser ? 0 : 40 }} />
+          <View style={{ width: isUser ? 0 : 30 }} />
         )}
         <View
           style={{

@@ -13,6 +13,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useRouter } from "expo-router";
 import { CustomDialog } from "@/components/ui/CustomDialog";
+import { AntDesign } from "@expo/vector-icons";
 
 export default function HomeScreen() {
   const { userPhoto, userName, setUserName, takePhoto, pickImage } = useUser();
@@ -46,7 +47,9 @@ export default function HomeScreen() {
           {userPhoto ? (
             <Image source={{ uri: userPhoto }} style={styles.avatar} />
           ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder]} />
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <AntDesign name="user" size={60} color="#0a7ea4" />
+            </View>
           )}
           <CustomButton
             title={userPhoto ? "Changer la photo" : "Ajouter une photo"}

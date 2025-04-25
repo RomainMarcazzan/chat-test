@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
-import { CustomButton, IconButton } from "@/components/ui/CustomButton";
+import { IconButton } from "@/components/ui/CustomButton";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MainChatMessage } from "@/components/chat/MainChatMessage";
@@ -18,6 +18,7 @@ import { HeaderSettingsButton } from "@/components/chat/HeaderSettingsButton";
 import { useUser } from "@/contexts/UserContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Colors } from "@/constants/Colors";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function MainChatScreen() {
   const { messages, addMessage } = useChatContext();
@@ -93,6 +94,12 @@ export default function MainChatScreen() {
           ]}
         >
           <View style={styles.inputRow}>
+            <IconButton
+              onPress={handlePickVideo}
+              icon={<AntDesign name="videocamera" size={24} color="#0a7ea4" />}
+              style={{ paddingHorizontal: 4 }}
+              disabled={isLoading}
+            />
             <TextInput
               style={styles.textInput}
               value={inputText}
@@ -102,17 +109,11 @@ export default function MainChatScreen() {
               multiline
               editable={!isLoading}
             />
-            <CustomButton
-              title="Envoyer"
-              onPress={handleSend}
-              disabled={!inputText.trim() || isLoading}
-              isLoading={isLoading}
-            />
             <IconButton
-              onPress={handlePickVideo}
-              icon={<AntDesign name="videocamera" size={24} color="#0a7ea4" />}
+              onPress={handleSend}
+              icon={<MaterialIcons name="send" size={24} color="#0a7ea4" />}
               style={{ paddingHorizontal: 4 }}
-              disabled={isLoading}
+              disabled={!inputText.trim() || isLoading}
             />
           </View>
         </ThemedView>
